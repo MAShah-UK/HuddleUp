@@ -1,2 +1,2 @@
 # LANSpeak
-Uploading pre-existing project files.
+A communications application that will use LANs to quickly and efficiently share data.
