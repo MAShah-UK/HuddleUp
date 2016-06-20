@@ -1,0 +1,8 @@
+<!DOCTYPE RCC><RCC version="1.0">
+<qresource>
+        <file>../icons/menuBar_Chats.png</file>
+        <file>../icons/menuBar_Media.png</file>
+        <file>../icons/menuBar_Settings.png</file>
+        <file>../icons/menuBar_Search.png</file>
+</qresource>
+</RCC>

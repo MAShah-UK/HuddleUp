@@ -1,0 +1,70 @@
+#pragma once
+
+/*
+ * Consider:
+ * - Universal references.
+ * - Constexpr functions.
+*/
+
+namespace Math
+{
+
+// Stateless math:
+
+template <typename T, typename U, typename V>
+T clamp(const T& actual, const U& min, const V& max)
+{
+    if      (actual < min) return min;
+    else if (actual > max) return max;
+    else                   return actual;
+}
+
+template <typename T, typename U>
+T min(const T& val1, const U& val2)
+{
+    return (val1 < val2) ? val1 : val2;
+}
+
+template <typename T, typename U>
+T max(const T& val1, const U& val2)
+{
+    return (val1 > val2) ? val1 : val2;
+}
+
+template <typename T>
+T abs(const T& val)
+{
+    return val > 0 ? val : -val;
+}
+
+template <typename T, typename U, typename V>
+bool tolerance(const T& val1, const U& val2, const V& tol)
+{
+    return abs(val1 - val2) <= abs(tol) ? true : false;
+}
+
+// Math with state:
+
+class Interpolate
+{
+public:
+
+    // Interpolation key points.
+    double initialX   = 0;
+    double finalX     = 0;
+    double initialY   = 0;
+    double finalY     = 0;
+
+    double currentX   = 0;
+    double incrementX = 0;
+
+    enum interpType {IT_linear, IT_sinusoidal};
+
+    Interpolate();
+
+    double interpolatedValue(bool applyIncrement = true, interpType iT = IT_linear);
+    bool outOfRange();
+};
+
+}
+
