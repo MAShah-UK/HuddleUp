@@ -43,6 +43,30 @@ bool tolerance(const T& val1, const U& val2, const V& tol)
     return abs(val1 - val2) <= abs(tol) ? true : false;
 }
 
+template <typename T>
+T sum(const T& val1)
+{
+    return val1;
+}
+
+template <typename T, typename ... Types>
+T sum(const T& val1, const Types& ... Params)
+{
+    return val1 + sum(Params...);
+}
+
+template <typename T, typename ... Types>
+T average(const T& val1, const Types& ... Params)
+{
+    return sum(val1, Params...) / (sizeof...(Params) + 1);
+}
+
+template <typename T>
+T isPositive(const T& val1)
+{
+    return val1 > 0 ? true : false;
+}
+
 // Math with state:
 
 class Interpolate

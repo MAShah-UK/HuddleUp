@@ -2,26 +2,17 @@
 
 #include <QWidget>
 
-#include "Extra/Math_General.h"
+// Change to this when SlideWidgets is complete
+// and seperate copy is stored from project for
+// future use.
+// #include "Extra/Math_General.h"
+
+#include "../../Extra/Math_General.h"
 
 /*
  * This container allows inserting and sliding through widgets.
  * Widgets will automatically downscale to the SlideWidget's
  * dimensions. Optionally they can be upscaled.
- *
- * Consider the following:
- * - Fix: Find an alternative way to resize child widgets than forcing
- *        clients to use a member function.
- * - Fix: Widgets auto-sliding when SlideWidget is resized.
- * - Fix: processTarget distance will be incorreect when scaling during animation.
- * - Bug: scaling not correct - width issue? ✓
- * - Bug: vertical scaling is incorrect until window is vertically resized. ✓
- * - Add: rubber banding effect when user scrolls too far.
- * - Add: ability to flick widgets.
- * - Add: "setTarget" member function that scrolls to desired widget.
- * - Add: a scrollbar showing how far the user has scrolled.
- * - Add: fadeout effects.
- * - Add: different positioning styles (one at a time, one in the centre, etc).
  */
 
 class SlideWidgets : public QWidget
@@ -38,7 +29,7 @@ class SlideWidgets : public QWidget
 
     void moveWidgets();
     float TWDScalingRatio = 0;
-    int totalInputDisp = 0;
+    int totalInputDisp = -100; // Reset to 0.
 
     void resizeWidgets();
     bool shouldUpscale = false;
@@ -59,8 +50,15 @@ class SlideWidgets : public QWidget
     QWidget* slideTarget = nullptr;
     Math::Interpolate targetInterp;
 
+    void processFlick();
+    QTimer* flickTimer = nullptr;
+    double currentInputPos = 0;
+    QList<double> inputPositions;
+
 protected slots:
+
     void processTarget();
+    void recordInputPos();
 
 public:
 
@@ -77,6 +75,7 @@ public:
     void setSpacing(int spacing);
     void setUpscaling(bool val = true);
     void setStyleVariant(StyleVariant sVar = StyleVariant::Queue);
+    void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
 };

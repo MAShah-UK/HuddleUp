@@ -120,29 +120,38 @@ bool SlideWidgets::event(QEvent* ev)
 
     case QEvent::Type::MouseButtonPress :
     case QEvent::Type::TouchBegin :
+
         if (targetTimer) targetTimer->stop();
+
+        // Every 30 ms we will record the mouse's position.
+        // Less than 5 readings will result in no flick.
+        // Otherwise the velocity is calculated.
+        inputPositions.clear();
+        flickTimer->start(5);
+
     break;
 
     case QEvent::Type::MouseMove :
     {
         QMouseEvent* me = static_cast<QMouseEvent*>(ev);
-        processInputDisplacement(me->localPos().x());
+        currentInputPos = me->localPos().x();
+        processInputDisplacement(currentInputPos);
     }
     break;
 
     case QEvent::Type::TouchUpdate :
     {
         QTouchEvent* te = static_cast<QTouchEvent*>(ev);
-        processInputDisplacement(te->touchPoints().first().lastPos().x());
+        currentInputPos = te->touchPoints().first().lastPos().x();
+        processInputDisplacement(currentInputPos);
     }
     break;
 
     case QEvent::Type::MouseButtonRelease :
-        isDragging = false;
-    break;
-
     case QEvent::Type::TouchEnd :
         isDragging = false;
+        flickTimer->stop();
+        processFlick();
     break;
 
     default:
@@ -150,6 +159,31 @@ bool SlideWidgets::event(QEvent* ev)
     }
 
     return true;
+}
+
+void SlideWidgets::processFlick()
+{
+    if (inputPositions.size() < 10) return;
+
+    double initialPos = inputPositions.first();
+    double mp = 1;
+
+    if ( !Math::isPositive(initialPos) )
+        mp = -1;
+
+    double avg = 0;
+
+    // Convert absolute positions to change in position.
+    for (double& val : inputPositions)
+    {
+        val -= mp * initialPos;
+        avg += val;
+    }
+
+    // Units are pixels per 40 ms.
+    avg /= inputPositions.size();
+    qDebug() << avg;
+    setTarget(Math::abs(totalInputDisp) - avg, 5000);
 }
 
 void SlideWidgets::processTarget()
@@ -160,7 +194,7 @@ void SlideWidgets::processTarget()
     if (targetInterp.outOfRange())
     {
         targetTimer->stop();
-        totalInputDisp = targetInterp.initialY - targetInterp.finalY;
+        totalInputDisp = -targetInterp.finalY;
     }
 
     else if (totalInputDisp > 0 ||
@@ -170,12 +204,24 @@ void SlideWidgets::processTarget()
     moveWidgets();
 }
 
+void SlideWidgets::recordInputPos()
+{
+    inputPositions.append(currentInputPos);
+    if (inputPositions.size() > 10) inputPositions.removeFirst();
+}
+
 SlideWidgets::SlideWidgets(QWidget* parent, StyleVariant sVar)
 {
     setParent(parent);
     setAttribute(Qt::WA_AcceptTouchEvents);
 
     setStyleVariant(sVar);
+
+    targetTimer = new QTimer(this);
+    connect(targetTimer, &QTimer::timeout, this, &SlideWidgets::processTarget);
+
+    flickTimer = new QTimer(this);
+    connect(flickTimer, &QTimer::timeout, this, &SlideWidgets::recordInputPos);
 }
 
 SlideWidgets::~SlideWidgets()
@@ -184,6 +230,7 @@ SlideWidgets::~SlideWidgets()
 
     delete sVariant;
     delete targetTimer;
+    delete flickTimer;
 }
 
 // If target is not specific the widget is inserted last in the queue
@@ -287,13 +334,8 @@ void SlideWidgets::setStyleVariant(SlideWidgets::StyleVariant sVar)
     }
 }
 
-void SlideWidgets::setTarget(QWidget* target, int duration)
+void SlideWidgets::setTarget(double displacement, int duration)
 {
-    if (widgets.indexOf(target) == -1)
-        return;
-
-    slideTarget = target;
-
     /* x-axis is time, y-axis is displacement.
      * initialY is the totalInputDisp as the goal is to
      * make that the same as the target widgets x-postion.
@@ -305,15 +347,23 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
     targetInterp.initialX   = frameTime;
     targetInterp.finalX     = duration;
     targetInterp.initialY   = Math::abs(totalInputDisp);
-    targetInterp.finalY     = target->pos().x() +
-                              target->size().width()/2 - size().width()/2;
+    targetInterp.finalY     = displacement;
 
     targetInterp.currentX   = frameTime;
     targetInterp.incrementX = frameTime;
 
-    if(!targetTimer) targetTimer = new QTimer(this);
     targetTimer->start(frameTime); // 60 FPS
-    connect(targetTimer, &QTimer::timeout, this, &SlideWidgets::processTarget);
+}
+
+void SlideWidgets::setTarget(QWidget* target, int duration)
+{
+    if (widgets.indexOf(target) == -1)
+        return;
+
+    double displacement = target->pos().x() +
+                       target->size().width()/2 - size().width()/2;
+
+    setTarget(displacement, duration);
 }
 
 void SlideWidgets::setTarget(int index, int duration)
