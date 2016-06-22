@@ -121,11 +121,10 @@ bool SlideWidgets::event(QEvent* ev)
     case QEvent::Type::MouseButtonPress :
     case QEvent::Type::TouchBegin :
 
-        if (targetTimer) targetTimer->stop();
-
-        // Every 30 ms we will record the mouse's position.
+        // Every 10 ms we will record the mouse's position.
         // Less than 5 readings will result in no flick.
         // Otherwise the velocity is calculated.
+        targetTimer->stop();
         inputPositions.clear();
         flickTimer->start(5);
 
@@ -134,7 +133,7 @@ bool SlideWidgets::event(QEvent* ev)
     case QEvent::Type::MouseMove :
     {
         QMouseEvent* me = static_cast<QMouseEvent*>(ev);
-        currentInputPos = me->localPos().x();
+        currentInputPos = me->globalPos().x();
         processInputDisplacement(currentInputPos);
     }
     break;
@@ -142,7 +141,7 @@ bool SlideWidgets::event(QEvent* ev)
     case QEvent::Type::TouchUpdate :
     {
         QTouchEvent* te = static_cast<QTouchEvent*>(ev);
-        currentInputPos = te->touchPoints().first().lastPos().x();
+        currentInputPos = te->touchPoints().first().screenPos().x();
         processInputDisplacement(currentInputPos);
     }
     break;
@@ -163,34 +162,31 @@ bool SlideWidgets::event(QEvent* ev)
 
 void SlideWidgets::processFlick()
 {
-    if (inputPositions.size() < 10) return;
+    if (inputPositions.size() < 5) return;
 
+    // We remove the first point since it will
+    // be zeroed out in the loop below anyway.
     double initialPos = inputPositions.first();
-    double mp = 1;
-
-    if ( !Math::isPositive(initialPos) )
-        mp = -1;
+    inputPositions.removeFirst();
 
     double avg = 0;
 
     // Convert absolute positions to change in position.
-    for (double& val : inputPositions)
-    {
-        val -= mp * initialPos;
-        avg += val;
-    }
+    for (double val : inputPositions)
+        avg += val - initialPos;
 
+    qDebug() << avg;
     // Units are pixels per 40 ms.
     avg /= inputPositions.size();
-    qDebug() << avg;
-    setTarget(Math::abs(totalInputDisp) - avg, 5000);
+    avg *= 15;
+
+    setTarget(Math::abs(totalInputDisp) - avg, 750);
 }
 
 void SlideWidgets::processTarget()
 {
-    totalInputDisp = - targetInterp.initialY - targetInterp.interpolatedValue(true,
-                                                      Math::Interpolate::IT_linear);
-    //qDebug() << -totalInputDisp;
+    totalInputDisp = -targetInterp.interpolatedValue(true, interpType);
+
     if (targetInterp.outOfRange())
     {
         targetTimer->stop();
@@ -207,7 +203,7 @@ void SlideWidgets::processTarget()
 void SlideWidgets::recordInputPos()
 {
     inputPositions.append(currentInputPos);
-    if (inputPositions.size() > 10) inputPositions.removeFirst();
+    if (inputPositions.size() > 5) inputPositions.removeFirst();
 }
 
 SlideWidgets::SlideWidgets(QWidget* parent, StyleVariant sVar)
@@ -324,11 +320,11 @@ void SlideWidgets::setStyleVariant(SlideWidgets::StyleVariant sVar)
 
     switch (sVar)
     {
-    case StyleVariant::Queue :
+    case StyleVariant::queue :
         sVariant = new SW_StyleVariant_Queue(this);
     break;
 
-    case StyleVariant::Single :
+    case StyleVariant::single :
         sVariant = new SW_StyleVariant_Single(this);
     break;
     }
@@ -360,8 +356,9 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
     if (widgets.indexOf(target) == -1)
         return;
 
-    double displacement = target->pos().x() +
-                       target->size().width()/2 - size().width()/2;
+    qDebug() << totalInputDisp;
+    double displacement = Math::abs(totalInputDisp) + target->pos().x() +
+                          target->size().width()/2 - size().width()/2;
 
     setTarget(displacement, duration);
 }
@@ -370,4 +367,18 @@ void SlideWidgets::setTarget(int index, int duration)
 {
     if (index > widgets.size() - 1) return;
     setTarget(widgets[index], duration);
+}
+
+void SlideWidgets::setInterpolation(SlideWidgets::Interpolation interp)
+{
+    switch (interp)
+    {
+    case Interpolation::linear :
+        interpType = MI::IT_linear;
+    break;
+
+    case Interpolation::sinusoidal :
+        interpType = MI::IT_sinusoidal;
+    break;
+    }
 }

@@ -23,15 +23,15 @@ double Math::Interpolate::interpolatedValue(bool applyIncrement, interpType iT)
 
     case IT_sinusoidal :
     {
-        // Not optimal, but works within range.
+        // Maybe not optimal, but works within range.
 
         double pi    = 3.14159265358;
         double xCalc = (currentX-initialX) / (finalX-initialX);
-        double yCalc = (finalY-initialY)/2;
-        result       = yCalc * sin(pi*xCalc) + initialY;
+        double yMax  = (finalY-initialY)/2;
+        result       = yMax * sin(pi*xCalc) + initialY;
 
-        if (currentX > (finalX-initialX)/2)
-           result = 2*yCalc - result;
+        if (currentX > (finalX+initialX)/2)
+           result = finalY + initialY - result;
     }
     break;
     }

@@ -28,7 +28,7 @@ MainWindow::MainWindow()
 
     resize(300, 200);
 
-    SlideWidgets* SW = new SlideWidgets(this, SlideWidgets::StyleVariant::Single);
+    slideWidget = new SlideWidgets(this, SlideWidgets::StyleVariant::queue);
 
     QWidget* W1 = new QWidget();
     QWidget* W2 = new QWidget();
@@ -47,12 +47,11 @@ MainWindow::MainWindow()
     W4->resize(150, 300);
     W5->resize(200, 250);
 
-    SW->addWidget(QList<QWidget*>{W1, W2, W3, W4, W5});
-    SW->setUpscaling();
-    SW->setSpacing(20);
-    SW->setTarget(W3, 5000);
+    slideWidget->addWidget(QList<QWidget*>{W1, W2, W3, W4, W5});
+    slideWidget->setUpscaling();
+    slideWidget->setSpacing(20);
 
-    rootWidget->addWidget(SW);
+    rootWidget->addWidget(slideWidget);
 }
 
 void MainWindow::setupNotifBackgound()
@@ -174,6 +173,22 @@ void MainWindow::resizeEvent(QResizeEvent * resizeEvent)
     {
        // rootWidget->setCurrentWidget(chatsTallWidget);
     }
+}
+
+bool MainWindow::event(QEvent* event)
+{
+    switch (event->type())
+    {
+
+    case QEvent::Type::KeyPress :
+        slideWidget->setTarget(3, 2000);
+    break;
+
+    default:
+        QWidget::event(event);
+    }
+
+    return true;
 }
 
 int MainWindow::percToPix(double percent, QSize ofSize)

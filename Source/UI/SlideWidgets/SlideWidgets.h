@@ -47,8 +47,9 @@ class SlideWidgets : public QWidget
 
     // For processTarget
     class QTimer* targetTimer = nullptr;
-    QWidget* slideTarget = nullptr;
-    Math::Interpolate targetInterp;
+    using MI = Math::Interpolate;
+    MI targetInterp;
+    MI::interpType interpType = MI::IT_linear;
 
     void processFlick();
     QTimer* flickTimer = nullptr;
@@ -62,9 +63,10 @@ protected slots:
 
 public:
 
-    enum class StyleVariant {Queue, Single};
+    enum class StyleVariant  {queue, single};
+    enum class Interpolation {linear, sinusoidal};
 
-    SlideWidgets(QWidget* parent = nullptr, StyleVariant sVar = StyleVariant::Queue);
+    SlideWidgets(QWidget* parent = nullptr, StyleVariant sVar = StyleVariant::queue);
     ~SlideWidgets();
 
     void addWidget(QWidget* newWidget, bool placeAfter = true, QWidget* target = nullptr);
@@ -74,8 +76,9 @@ public:
     void setWidgetSize(QWidget* widget, const QSize& widgetSize);
     void setSpacing(int spacing);
     void setUpscaling(bool val = true);
-    void setStyleVariant(StyleVariant sVar = StyleVariant::Queue);
+    void setStyleVariant(StyleVariant sVar = StyleVariant::queue);
     void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
+    void setInterpolation(Interpolation interp);
 };

@@ -3,6 +3,7 @@
 #include <QMainWindow>
 
 class QStackedWidget;
+class SlideWidgets;
 class QWidget;
 class QLabel;
 
@@ -13,6 +14,7 @@ class MainWindow : public QMainWindow
     // Setup once from the constructor.
 
     QStackedWidget* rootWidget;
+    SlideWidgets* slideWidget;
     QWidget* chatsWideWidget;
     QWidget* chatsTallWidget;
     QWidget* MediaWideWidget;
@@ -39,6 +41,7 @@ class MainWindow : public QMainWindow
     // Events
 
     void resizeEvent(QResizeEvent *);
+    bool event(QEvent* event);
 
     // Update when required.
 
