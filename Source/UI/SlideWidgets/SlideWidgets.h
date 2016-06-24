@@ -49,7 +49,7 @@ class SlideWidgets : public QWidget
     class QTimer* targetTimer = nullptr;
     using MI = Math::Interpolate;
     MI targetInterp;
-    MI::interpType interpType = MI::IT_linear;
+    MI::interpType interpType = MI::IT_smooth;
 
     void processFlick();
     QTimer* flickTimer = nullptr;
@@ -64,7 +64,7 @@ protected slots:
 public:
 
     enum class StyleVariant  {queue, single};
-    enum class Interpolation {linear, sinusoidal};
+    enum class Interpolation {linear, sinusoidal, smooth};
 
     SlideWidgets(QWidget* parent = nullptr, StyleVariant sVar = StyleVariant::queue);
     ~SlideWidgets();

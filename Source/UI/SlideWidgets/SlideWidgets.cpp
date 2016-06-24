@@ -126,7 +126,7 @@ bool SlideWidgets::event(QEvent* ev)
         // Otherwise the velocity is calculated.
         targetTimer->stop();
         inputPositions.clear();
-        flickTimer->start(5);
+        flickTimer->start(10);
 
     break;
 
@@ -164,6 +164,11 @@ void SlideWidgets::processFlick()
 {
     if (inputPositions.size() < 5) return;
 
+    for (double val : inputPositions)
+    {
+        qDebug() << val;
+    }
+
     // We remove the first point since it will
     // be zeroed out in the loop below anyway.
     double initialPos = inputPositions.first();
@@ -173,11 +178,16 @@ void SlideWidgets::processFlick()
 
     // Convert absolute positions to change in position.
     for (double val : inputPositions)
+    {
         avg += val - initialPos;
+        //qDebug() << val - initialPos;
+    }
 
-    qDebug() << avg;
     // Units are pixels per 40 ms.
     avg /= inputPositions.size();
+   // qDebug() << "avg: " << avg;
+    //qDebug() << "";
+
     avg *= 15;
 
     setTarget(Math::abs(totalInputDisp) - avg, 750);
@@ -379,6 +389,10 @@ void SlideWidgets::setInterpolation(SlideWidgets::Interpolation interp)
 
     case Interpolation::sinusoidal :
         interpType = MI::IT_sinusoidal;
+    break;
+
+    case Interpolation::smooth :
+        interpType = MI::IT_smooth;
     break;
     }
 }
