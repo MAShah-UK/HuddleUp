@@ -82,11 +82,11 @@ public:
     double currentX   = 0;
     double incrementX = 0;
 
-    enum interpType {IT_linear, IT_sinusoidal};
+    enum interpType {IT_linear, IT_sinusoidal, IT_smooth, IT_exponential};
 
     Interpolate();
 
-    double interpolatedValue(bool applyIncrement = true, interpType iT = IT_linear);
+    double interpolatedValue(bool applyIncrement = true, interpType iT = IT_smooth);
     bool outOfRange();
 };
 
