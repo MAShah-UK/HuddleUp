@@ -87,7 +87,7 @@ public:
     Interpolate();
 
     double interpolatedValue(bool applyIncrement = true, interpType iT = IT_smooth);
-    bool outOfRange();
+    bool outOfXRange();
 };
 
 }

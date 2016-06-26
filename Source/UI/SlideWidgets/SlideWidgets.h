@@ -49,7 +49,8 @@ class SlideWidgets : public QWidget
     class QTimer* targetTimer = nullptr;
     using MI = Math::Interpolate;
     MI targetInterp;
-    MI::interpType interpType = MI::IT_smooth;
+    MI::interpType interpType;
+    bool isFlicking = false;
 
     void processFlick();
     QTimer* flickTimer = nullptr;
@@ -80,5 +81,4 @@ public:
     void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
-    void setInterpolation(Interpolation interp);
 };
