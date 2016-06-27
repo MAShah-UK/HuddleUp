@@ -22,7 +22,7 @@ void SlideWidgets::moveWidgets()
     totalInputDisp *= TWDScalingRatio;
     TWDScalingRatio = 1;
 
-    // The logic is demonstrated in 'SW_StyleVariant Calculations.png'.
+    // Steps in 'SW_StyleVariant Calculations.png'.
     totalInputDisp = Math::max(totalInputDisp, size().width() - totalWidgetDistance);
 
     // We don't want positive displacement as there will be a gap behind the first widget.
@@ -112,10 +112,36 @@ void SlideWidgets::processInputDisplacement(int inputPos)
 
 bool SlideWidgets::event(QEvent* ev)
 {
+    // If the current input position needs to be updated.
     switch(ev->type())
     {
+
+    case QEvent::Type::MouseButtonPress :
+    case QEvent::Type::MouseMove :
+    {
+         QMouseEvent* me = static_cast<QMouseEvent*>(ev);
+         currentInputPos = me->globalPos().x();
+    }
+    break;
+
+    case QEvent::Type::TouchBegin :
+    case QEvent::Type::TouchUpdate :
+    {
+         QTouchEvent* te = static_cast<QTouchEvent*>(ev);
+         currentInputPos = te->touchPoints().first().screenPos().x();
+    }
+    break;
+
+    default:
+         ;// Leaving this here to prevent a 100+ warnings.
+    }
+
+    // Further handle input or other events.
+    switch(ev->type())
+    {
+
     case QEvent::Type::Resize :
-        resizeWidgets();
+         resizeWidgets();
     break;
 
     case QEvent::Type::MouseButtonPress :
@@ -127,31 +153,22 @@ bool SlideWidgets::event(QEvent* ev)
         targetTimer->stop();
         inputPositions.clear();
         isFlicking = true;
-        flickTimer->start(10);
+        flickTimer->start(5);
 
     break;
 
     case QEvent::Type::MouseMove :
-    {
-        QMouseEvent* me = static_cast<QMouseEvent*>(ev);
-        currentInputPos = me->globalPos().x();
-        processInputDisplacement(currentInputPos);
-    }
-    break;
-
     case QEvent::Type::TouchUpdate :
-    {
-        QTouchEvent* te = static_cast<QTouchEvent*>(ev);
-        currentInputPos = te->touchPoints().first().screenPos().x();
-        processInputDisplacement(currentInputPos);
-    }
+         processInputDisplacement(currentInputPos);
     break;
 
     case QEvent::Type::MouseButtonRelease :
     case QEvent::Type::TouchEnd :
-        isDragging = false;
-        flickTimer->stop();
-        processFlick();
+
+         isDragging = false;
+         flickTimer->stop();
+         processFlick();
+
     break;
 
     default:
@@ -181,9 +198,6 @@ void SlideWidgets::processFlick()
 
     // Units are pixels per 40 ms.
     avg /= inputPositions.size();
-   // qDebug() << "avg: " << avg;
-    //qDebug() << "";
-
     avg *= 15;
 
     setTarget(Math::abs(totalInputDisp) - avg, 750);
@@ -356,7 +370,8 @@ void SlideWidgets::setTarget(double displacement, int duration)
     targetInterp.initialX   = frameTime;
     targetInterp.finalX     = duration;
     targetInterp.initialY   = Math::abs(totalInputDisp);
-    targetInterp.finalY     = displacement;
+    targetInterp.finalY     = Math::clamp(displacement, 0,
+                              totalWidgetDistance - size().width());
 
     targetInterp.currentX   = frameTime;
     targetInterp.incrementX = frameTime;
