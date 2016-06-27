@@ -29,18 +29,18 @@ class SlideWidgets : public QWidget
 
     void moveWidgets();
     float TWDScalingRatio = 0;
-    int totalInputDisp = -100; // Reset to 0.
+    int totalInputDisp    = -100; // Reset to 0.
 
     void resizeWidgets();
     bool shouldUpscale = false;
-    int widgetSpacing = 10;
+    int widgetSpacing  = 10;
     int totalWidgetDistance = 0;
 
     void removeWidget_internal(QWidget* target = nullptr, bool shouldDelete = true);
     void removeWidget_impl(QWidget* target = nullptr, bool shouldDelete = true);
 
     void processInputDisplacement(int inputPos);
-    bool isDragging = false;
+    bool isDragging  = false;
     int prevInputPos = 0;
 
     bool event(QEvent* ev);

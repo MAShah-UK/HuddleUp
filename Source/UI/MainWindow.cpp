@@ -181,7 +181,7 @@ bool MainWindow::event(QEvent* event)
     {
 
     case QEvent::Type::KeyPress :
-        slideWidget->setTarget(2, 2000);
+        slideWidget->setTarget(4, 2000);
     break;
 
     default:
