@@ -126,6 +126,7 @@ bool SlideWidgets::event(QEvent* ev)
         // Otherwise the velocity is calculated.
         targetTimer->stop();
         inputPositions.clear();
+        isFlicking = true;
         flickTimer->start(10);
 
     break;
@@ -164,11 +165,6 @@ void SlideWidgets::processFlick()
 {
     if (inputPositions.size() < 5) return;
 
-    for (double val : inputPositions)
-    {
-        qDebug() << val;
-    }
-
     // We remove the first point since it will
     // be zeroed out in the loop below anyway.
     double initialPos = inputPositions.first();
@@ -195,17 +191,24 @@ void SlideWidgets::processFlick()
 
 void SlideWidgets::processTarget()
 {
+    interpType = isFlicking ? MI::IT_exponential : MI::IT_smooth;
+
     totalInputDisp = -targetInterp.interpolatedValue(true, interpType);
 
-    if (targetInterp.outOfRange())
+    if (targetInterp.outOfXRange())
     {
+        isFlicking = false;
         targetTimer->stop();
+
         totalInputDisp = -targetInterp.finalY;
     }
 
     else if (totalInputDisp > 0 ||
             totalInputDisp < size().width() - totalWidgetDistance)
-            targetTimer->stop();
+    {
+        isFlicking = false;
+        targetTimer->stop();
+    }
 
     moveWidgets();
 }
@@ -348,7 +351,7 @@ void SlideWidgets::setTarget(double displacement, int duration)
      * This will result in the widget being placed in
      * the middle of the parent.
      */
-    const int frameTime = 16;
+    constexpr int frameTime = 16; // 60 FPS
 
     targetInterp.initialX   = frameTime;
     targetInterp.finalX     = duration;
@@ -358,7 +361,8 @@ void SlideWidgets::setTarget(double displacement, int duration)
     targetInterp.currentX   = frameTime;
     targetInterp.incrementX = frameTime;
 
-    targetTimer->start(frameTime); // 60 FPS
+    flickTimer->stop();
+    targetTimer->start(frameTime);
 }
 
 void SlideWidgets::setTarget(QWidget* target, int duration)
@@ -366,7 +370,6 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
     if (widgets.indexOf(target) == -1)
         return;
 
-    qDebug() << totalInputDisp;
     double displacement = Math::abs(totalInputDisp) + target->pos().x() +
                           target->size().width()/2 - size().width()/2;
 
@@ -377,22 +380,4 @@ void SlideWidgets::setTarget(int index, int duration)
 {
     if (index > widgets.size() - 1) return;
     setTarget(widgets[index], duration);
-}
-
-void SlideWidgets::setInterpolation(SlideWidgets::Interpolation interp)
-{
-    switch (interp)
-    {
-    case Interpolation::linear :
-        interpType = MI::IT_linear;
-    break;
-
-    case Interpolation::sinusoidal :
-        interpType = MI::IT_sinusoidal;
-    break;
-
-    case Interpolation::smooth :
-        interpType = MI::IT_smooth;
-    break;
-    }
 }

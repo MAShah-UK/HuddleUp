@@ -36,16 +36,16 @@ double Math::Interpolate::interpolatedValue(bool applyIncrement, interpType iT)
     }
     break;
 
-    // Logic explained in 'Interpolation - Smooth or Cubic.png'.
+    // Steps in 'Interpolation - Smooth or Cubic.png'.
     case IT_smooth :
     {
         double dx = finalX-initialX;
         double dy = finalY-initialY;
         double f  = dy / (0.25*pow(dx, 3));
 
-        double Ax = (initialX + finalX)/2;
+        double AvgX = (initialX + finalX)/2;
 
-        if (currentX < Ax)
+        if (currentX < AvgX)
             result = f*pow(currentX-initialX, 3) + initialY;
         else
             result = f*pow(currentX-finalX, 3) + finalY;
@@ -55,10 +55,8 @@ double Math::Interpolate::interpolatedValue(bool applyIncrement, interpType iT)
 
     case IT_exponential :
     {
-        double root = (0.05*finalX*finalX*initialY + 4) / (0.05*initialY);
-        double xI   = 0.5 * (finalX + pow(root, 0.5));
-        double yI   = 1/(0.05 * (xI-finalX));
-        result = 1/(0.05 * (currentX - xI)) + yI;
+        double f = (initialY-finalY) / pow(initialX-finalX, 3);
+        result   = f * pow(currentX-finalX, 3) + finalY;
     }
     break;
 
@@ -69,7 +67,7 @@ double Math::Interpolate::interpolatedValue(bool applyIncrement, interpType iT)
     return result;
 }
 
-bool Math::Interpolate::outOfRange()
+bool Math::Interpolate::outOfXRange()
 {
     return (currentX > finalX) ||
            (currentX < initialX)
