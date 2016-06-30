@@ -29,7 +29,7 @@ class SlideWidgets : public QWidget
 
     void moveWidgets();
     float TWDScalingRatio = 0;
-    int totalInputDisp    = -100; // Reset to 0.
+    int totalInputDisp    = 0;
 
     void resizeWidgets();
     bool shouldUpscale = false;
@@ -51,6 +51,8 @@ class SlideWidgets : public QWidget
     MI targetInterp;
     MI::interpType interpType;
     bool isFlicking = false;
+
+    double flickVelocity();
 
     void processFlick();
     QTimer* flickTimer = nullptr;

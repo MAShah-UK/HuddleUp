@@ -28,7 +28,7 @@ MainWindow::MainWindow()
 
     resize(300, 200);
 
-    slideWidget = new SlideWidgets(this, SlideWidgets::StyleVariant::queue);
+    slideWidget = new SlideWidgets(this, SlideWidgets::StyleVariant::single);
 
     QWidget* W1 = new QWidget();
     QWidget* W2 = new QWidget();

@@ -37,9 +37,18 @@ void SlideWidgets::resizeWidgets()
 
     for (QWidget* widget : widgets)
     {
+        const QSize& widgetDim = widget->size();
         QSize OwidgetDim  = initialWidgetsSize[widgets.indexOf(widget)];
 
-        double scaleFactor = sVariant->scaleFactor(widget);
+        double scaleFactor = 0;
+
+        // We need to scale based on the smaller gap to ensure that widgets fit.
+        if (size().height() - widgetDim.height() < size().width() - widgetDim.width())
+            scaleFactor = ((double)size().height() - 2*widgetSpacing) /
+                          OwidgetDim.height();
+        else
+            scaleFactor = ((double)size().width() - 2*widgetSpacing) /
+                          OwidgetDim.width();
 
         if (scaleFactor <= 1 ||
             shouldUpscale && scaleFactor > 1)
@@ -49,6 +58,7 @@ void SlideWidgets::resizeWidgets()
         }
     }
 
+    // Attempt to reposition based on window scale factor.
     int newTotalWidgetDistance = sVariant->totalWidgetDistance();
     if (!totalWidgetDistance) totalWidgetDistance = newTotalWidgetDistance;
     TWDScalingRatio = (float)newTotalWidgetDistance / totalWidgetDistance;
@@ -133,7 +143,7 @@ bool SlideWidgets::event(QEvent* ev)
     break;
 
     default:
-         ;// Leaving this here to prevent a 100+ warnings.
+         ;// Leave this here to prevent a 100+ warnings.
     }
 
     // Further handle input or other events.
@@ -152,7 +162,6 @@ bool SlideWidgets::event(QEvent* ev)
         // Otherwise the velocity is calculated.
         targetTimer->stop();
         inputPositions.clear();
-        isFlicking = true;
         flickTimer->start(5);
 
     break;
@@ -178,10 +187,8 @@ bool SlideWidgets::event(QEvent* ev)
     return true;
 }
 
-void SlideWidgets::processFlick()
+double SlideWidgets::flickVelocity()
 {
-    if (inputPositions.size() < 5) return;
-
     // We remove the first point since it will
     // be zeroed out in the loop below anyway.
     double initialPos = inputPositions.first();
@@ -191,16 +198,26 @@ void SlideWidgets::processFlick()
 
     // Convert absolute positions to change in position.
     for (double val : inputPositions)
-    {
         avg += val - initialPos;
-        //qDebug() << val - initialPos;
-    }
 
     // Units are pixels per 40 ms.
     avg /= inputPositions.size();
-    avg *= 15;
 
-    setTarget(Math::abs(totalInputDisp) - avg, 750);
+    // Units are pixels per second.
+    avg /= 0.04;
+
+    return avg;
+}
+
+void SlideWidgets::processFlick()
+{
+    // If not enough user input positions then ignore user flick.
+    if (inputPositions.size() < 5)
+       return;
+
+    isFlicking = true;
+
+    sVariant->processFlickDisp(flickVelocity());
 }
 
 void SlideWidgets::processTarget()
@@ -369,7 +386,7 @@ void SlideWidgets::setTarget(double displacement, int duration)
 
     targetInterp.initialX   = frameTime;
     targetInterp.finalX     = duration;
-    targetInterp.initialY   = Math::abs(totalInputDisp);
+    targetInterp.initialY   = abs(totalInputDisp);
     targetInterp.finalY     = Math::clamp(displacement, 0,
                               totalWidgetDistance - size().width());
 
@@ -385,7 +402,7 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
     if (widgets.indexOf(target) == -1)
         return;
 
-    double displacement = Math::abs(totalInputDisp) + target->pos().x() +
+    double displacement = abs(totalInputDisp) + target->pos().x() +
                           target->size().width()/2 - size().width()/2;
 
     setTarget(displacement, duration);
@@ -393,6 +410,9 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
 
 void SlideWidgets::setTarget(int index, int duration)
 {
-    if (index > widgets.size() - 1) return;
+    if (index > widgets.size() - 1 ||
+        index < 0)
+       return;
+
     setTarget(widgets[index], duration);
 }

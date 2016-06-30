@@ -1,6 +1,8 @@
 #include "SW_StyleVariant.h"
 
 #include <QWidget>
+#include <QtMath>
+#include <QDebug>
 
 #include "SlideWidgets.h"
 #include "Extra/Math_General.h"
@@ -15,7 +17,9 @@ SW_StyleVariant::SW_StyleVariant(SlideWidgets* parent)
 
 SW_StyleVariant_Queue::SW_StyleVariant_Queue(SlideWidgets* parent)
     : SW_StyleVariant(parent)
-{}
+{
+    flickTime = 750;
+}
 
 void SW_StyleVariant_Queue::moveWidgets()
 {
@@ -41,17 +45,19 @@ int SW_StyleVariant_Queue::totalWidgetDistance()
     return newTotalWidgetDistance;
 }
 
-float SW_StyleVariant_Queue::scaleFactor(QWidget* widget)
+void SW_StyleVariant_Queue::processFlickDisp(double velocity)
 {
-    return ((double)parent->size().height() - 2*parent->widgetSpacing) /
-           parent->initialWidgetsSize[parent->widgets.indexOf(widget)].height();
+    parent->setTarget( (double)abs(parent->totalInputDisp) - velocity*1.5,
+                      flickTime);
 }
 
-// SW_StyleVariant_Central
+// SW_StyleVariant_Single
 
 SW_StyleVariant_Single::SW_StyleVariant_Single(SlideWidgets* parent)
     : SW_StyleVariant(parent)
-{}
+{
+    flickTime = 250;
+}
 
 void SW_StyleVariant_Single::moveWidgets()
 {
@@ -71,22 +77,21 @@ int SW_StyleVariant_Single::totalWidgetDistance()
     return parent->widgets.size() * parent->size().width();
 }
 
-float SW_StyleVariant_Single::scaleFactor(QWidget* widget)
+void SW_StyleVariant_Single::processFlickDisp(double velocity)
 {
-    float scaleFactor = 1;
+    double targetWidget = (double)abs(parent->totalInputDisp) /
+                          parent->size().width() + 0.5;
 
-    const QSize& dim  = parent->size();
-    const QSize& widgetDim = widget->size();
-    const QSize& OwidgetDim  = parent->initialWidgetsSize[parent->widgets.indexOf(widget)];
-    int widgetSpacing = parent->widgetSpacing;
+    int multiplier = 0;
 
-    // We need to scale based on the smaller gap to fit the widget.
-    if (dim.height() - widgetDim.height() < dim.width() - widgetDim.width())
-        scaleFactor = ((double)dim.height() - 2*widgetSpacing) /
-                      OwidgetDim.height();
-    else
-        scaleFactor = ((double)dim.width() - 2*widgetSpacing) /
-                      OwidgetDim.width();
+    if      (velocity < -1)
+             multiplier = 1;
+    else if (velocity > 1)
+             multiplier = -1;
 
-    return scaleFactor;
+    targetWidget += 0.5 * multiplier;
+
+        qDebug() << targetWidget;
+
+    parent->setTarget((int)targetWidget, flickTime);
 }
