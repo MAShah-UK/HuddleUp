@@ -8,14 +8,16 @@ QT        += core gui widgets
 
 SOURCES   += main.cpp \
              Extra/Math_General.cpp \
+             Extra/Qt_General.cpp \
              UI/MainWindow.cpp \
              UI/SlideWidgets/SlideWidgets.cpp \
-             UI/SlideWidgets/SW_StyleVariant.cpp \
+             UI/SlideWidgets/SW_StyleVariant.cpp
 
 HEADERS   += Extra/Math_General.h \
+             Extra/Qt_General.h \
              UI/MainWindow.h \
              UI/SlideWidgets/SlideWidgets.h \
-             UI/SlideWidgets/SW_StyleVariant.h \
+             UI/SlideWidgets/SW_StyleVariant.h
 
 RESOURCES += resources.qrc
 

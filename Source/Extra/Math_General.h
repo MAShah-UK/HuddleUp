@@ -1,5 +1,11 @@
 #pragma once
 
+#include <initializer_list>
+#include <cmath>
+
+using std::initializer_list;
+using std::pow;
+
 /*
  * Consider:
  * - Universal references.
@@ -9,7 +15,7 @@
 namespace Math
 {
 
-// Stateless math:
+// Stateless:
 
 template <typename T, typename U, typename V>
 T clamp(const T& actual, const U& min, const V& max)
@@ -67,7 +73,18 @@ T isPositive(const T& val1)
     return val1 > 0 ? true : false;
 }
 
-// Math with state:
+template <typename T>
+T vectorLength(initializer_list<T> comp)
+{
+    T sum = 0;
+
+    for (const T& val : comp)
+       sum += pow(val, 2);
+
+    return pow(sum, 0.5);
+}
+
+// With state:
 
 class Interpolate
 {

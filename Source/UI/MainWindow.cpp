@@ -28,7 +28,7 @@ MainWindow::MainWindow()
 
     resize(300, 200);
 
-    slideWidget = new SlideWidgets(this, SlideWidgets::StyleVariant::single);
+    slideWidget = new SlideWidgets(this);
 
     QWidget* W1 = new QWidget();
     QWidget* W2 = new QWidget();
@@ -42,14 +42,19 @@ MainWindow::MainWindow()
     setBackgroundColor(W4, Qt::magenta);
     setBackgroundColor(W5, Qt::cyan);
 
-    W1->resize(150, 500);
-    W2->resize(440, 200);
-    W4->resize(150, 300);
-    W5->resize(200, 250);
+    W1->resize(200, 200);
+    W2->resize(200, 200);
+    W3->resize(200, 200);
+    W4->resize(200, 200);
+    W5->resize(200, 200);
 
-    slideWidget->addWidget(QList<QWidget*>{W1, W2, W3, W4, W5});
-    slideWidget->setUpscaling();
-    slideWidget->setSpacing(20);
+    slideWidget->addWidget({W1, W2, W3, W4, W5});
+
+    SW_Properties props;
+    props.isHorizontal = false;
+    props.shouldUpscale = true;
+    props.styleVariant = SW_Properties::SV_Single;
+    slideWidget->properties(props);
 
     rootWidget->addWidget(slideWidget);
 }

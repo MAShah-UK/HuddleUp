@@ -2,6 +2,8 @@
 
 #include <QList>
 
+#include "../../Extra/Qt_General.h"
+
 /*
  * There are the following style variants:
  * Queue  - displays all widgets in a queue.
@@ -17,7 +19,7 @@ class SW_StyleVariant
 protected:
 
     SlideWidgets* parent;
-    int flickTime;
+    Qt_Gen::DirectionalProperties& dirProp;
 
 public:
 
