@@ -1,16 +1,14 @@
-#include "SlideWidgets.h"
+#include "SlideWidget.h"
 
-#include <QDebug>
-#include <QMessageBox>
 #include <QMouseEvent>
 #include <QTouchEvent>
 #include <QTimer>
 #include <QtMath>
 
 #include "SW_StyleVariant.h"
-#include "Extra/Math_General.h"
+#include "Helpers/Math_General.h"
 
-void SlideWidgets::moveWidgets()
+void SlideWidget::moveWidgets()
 {
     if(!widgets.size()) return;
 
@@ -31,7 +29,7 @@ void SlideWidgets::moveWidgets()
     sVariant->moveWidgets();
 }
 
-void SlideWidgets::resizeWidgets()
+void SlideWidget::resizeWidgets()
 {
     if (!widgets.size()) return;
 
@@ -67,14 +65,14 @@ void SlideWidgets::resizeWidgets()
     moveWidgets();
 }
 
-void SlideWidgets::removeWidget_internal(QWidget* target, bool shouldDelete)
+void SlideWidget::removeWidget_internal(QWidget* target, bool shouldDelete)
 {
     if (!target) return;
 
     removeWidget_impl(target, shouldDelete);
 }
 
-void SlideWidgets::removeWidget_impl(QWidget* target, bool shouldDelete)
+void SlideWidget::removeWidget_impl(QWidget* target, bool shouldDelete)
 {
     int targetIndex = widgets.indexOf(target);
 
@@ -93,7 +91,7 @@ void SlideWidgets::removeWidget_impl(QWidget* target, bool shouldDelete)
     }
 }
 
-void SlideWidgets::processInputDisplacement(int inputPos)
+void SlideWidget::processInputDisplacement(int inputPos)
 {
     int deltaPos = 0;
 
@@ -120,7 +118,7 @@ void SlideWidgets::processInputDisplacement(int inputPos)
     moveWidgets();
 }
 
-bool SlideWidgets::event(QEvent* ev)
+bool SlideWidget::event(QEvent* ev)
 {
     // If the current input position needs to be updated.
     switch(ev->type())
@@ -189,7 +187,7 @@ bool SlideWidgets::event(QEvent* ev)
     return true;
 }
 
-double SlideWidgets::inputVelocity()
+double SlideWidget::inputVelocity()
 {
     // We remove the first point since it will
     // be zeroed out in the loop below anyway.
@@ -216,7 +214,7 @@ double SlideWidgets::inputVelocity()
     return avg;
 }
 
-void SlideWidgets::processFlick()
+void SlideWidget::processFlick()
 {
     if (!SWProps.isFlickable) return;
 
@@ -224,7 +222,7 @@ void SlideWidgets::processFlick()
     sVariant->processFlickDisp(inputVelocity() * SWProps.flickSensitivity);
 }
 
-void SlideWidgets::processTarget()
+void SlideWidget::processTarget()
 {
     interpType = isFlicking ? MI::IT_exponential : MI::IT_smooth;
 
@@ -248,27 +246,27 @@ void SlideWidgets::processTarget()
     moveWidgets();
 }
 
-void SlideWidgets::recordInputPos()
+void SlideWidget::recordInputPos()
 {
     inputPositions.append(currentInputPos);
     if (inputPositions.size() > 5) inputPositions.removeFirst();
 }
 
-SlideWidgets::SlideWidgets(QWidget* parent)
+SlideWidget::SlideWidget(QWidget* parent, const SWProperties& SWProps)
+    : QWidget(parent)
 {
-    setParent(parent);
     setAttribute(Qt::WA_AcceptTouchEvents);
 
     targetTimer = new QTimer(this);
-    connect(targetTimer, &QTimer::timeout, this, &SlideWidgets::processTarget);
+    connect(targetTimer, &QTimer::timeout, this, &SlideWidget::processTarget);
 
     inputTimer = new QTimer(this);
-    connect(inputTimer, &QTimer::timeout, this, &SlideWidgets::recordInputPos);
+    connect(inputTimer, &QTimer::timeout, this, &SlideWidget::recordInputPos);
 
     properties(SWProps);
 }
 
-SlideWidgets::~SlideWidgets()
+SlideWidget::~SlideWidget()
 {
     clearWidgets();
 
@@ -279,7 +277,7 @@ SlideWidgets::~SlideWidgets()
 
 // If target is not specific the widget is inserted last in the queue
 // if placeAfter is true, otherwise it's placed to the front of the queue.
-void SlideWidgets::addWidget(QList<QWidget*> newWidgets, bool placeAfter, QWidget* target)
+void SlideWidget::addWidget(QList<QWidget*> newWidgets, bool placeAfter, QWidget* target)
 {
     for (QWidget* newWidget : newWidgets)
     {
@@ -302,9 +300,7 @@ void SlideWidgets::addWidget(QList<QWidget*> newWidgets, bool placeAfter, QWidge
         }
 
         else
-        {
             if (placeAfter) offset = widgets.size();
-        }
 
         widgets.insert(offset, newWidget);
         initialWidgetsSize.insert(offset, newWidget->size());
@@ -315,7 +311,7 @@ void SlideWidgets::addWidget(QList<QWidget*> newWidgets, bool placeAfter, QWidge
     resizeWidgets();
 }
 
-void SlideWidgets::addWidget(std::initializer_list<QWidget*> newWidgets, bool placeAfter, QWidget* target)
+void SlideWidget::addWidget(std::initializer_list<QWidget*> newWidgets, bool placeAfter, QWidget* target)
 {
     QList<QWidget*> widgets;
     widgets.reserve( newWidgets.size() );
@@ -326,13 +322,13 @@ void SlideWidgets::addWidget(std::initializer_list<QWidget*> newWidgets, bool pl
     addWidget(widgets, placeAfter, target);
 }
 
-void SlideWidgets::addWidget(QWidget* newWidget, bool placeAfter, QWidget* target)
+void SlideWidget::addWidget(QWidget* newWidget, bool placeAfter, QWidget* target)
 {
     addWidget(QList<QWidget*>{newWidget}, placeAfter, target);
 }
 
 // If no target then last widget is removed.
-void SlideWidgets::removeWidget(QWidget* target, bool shouldDelete)
+void SlideWidget::removeWidget(QWidget* target, bool shouldDelete)
 {
     if(widgets.empty()) return;
 
@@ -341,7 +337,7 @@ void SlideWidgets::removeWidget(QWidget* target, bool shouldDelete)
     resizeWidgets();
 }
 
-void SlideWidgets::clearWidgets(bool shouldDelete)
+void SlideWidget::clearWidgets(bool shouldDelete)
 {
     if (shouldDelete)
     {
@@ -353,18 +349,18 @@ void SlideWidgets::clearWidgets(bool shouldDelete)
     initialWidgetsSize.clear();
 }
 
-void SlideWidgets::setWidgetSize(QWidget* widget, const QSize& widgetSize)
+void SlideWidget::setWidgetSize(QWidget* widget, const QSize& widgetSize)
 {
     widget->resize(widgetSize);
     initialWidgetsSize[widgets.indexOf(widget)] = widgetSize;
 }
 
-SW_Properties SlideWidgets::properties()
+SWProperties SlideWidget::properties()
 {
     return SWProps;
 }
 
-void SlideWidgets::properties(const SW_Properties& props)
+void SlideWidget::properties(const SWProperties& props)
 {
     dirProp.setDirection(props.isHorizontal);
 
@@ -377,23 +373,23 @@ void SlideWidgets::properties(const SW_Properties& props)
     resizeWidgets();
 }
 
-void SlideWidgets::setStyleVariant(SW_Properties::StyleVariants sVar)
+void SlideWidget::setStyleVariant(SWProperties::StyleVariants sVar)
 {
     if (sVariant) delete sVariant;
 
     switch (sVar)
     {
-    case SW_Properties::SV_Queue :
+    case SWProperties::SV_Queue :
         sVariant = new SW_StyleVariant_Queue(this);
     break;
 
-    case SW_Properties::SV_Single :
+    case SWProperties::SV_Single :
         sVariant = new SW_StyleVariant_Single(this);
     break;
     }
 }
 
-void SlideWidgets::setTarget(double displacement, int duration)
+void SlideWidget::setTarget(double displacement, int duration)
 {
     /* x-axis is time, y-axis is displacement.
      * initialY is the totalInputDisp as the goal is to
@@ -416,7 +412,7 @@ void SlideWidgets::setTarget(double displacement, int duration)
     targetTimer->start(frameTime);
 }
 
-void SlideWidgets::setTarget(QWidget* target, int duration)
+void SlideWidget::setTarget(QWidget* target, int duration)
 {
     if (widgets.indexOf(target) == -1)
         return;
@@ -427,7 +423,7 @@ void SlideWidgets::setTarget(QWidget* target, int duration)
     setTarget(displacement, duration);
 }
 
-void SlideWidgets::setTarget(int index, int duration)
+void SlideWidget::setTarget(int index, int duration)
 {
     if (index > widgets.size() - 1 ||
         index < 0)

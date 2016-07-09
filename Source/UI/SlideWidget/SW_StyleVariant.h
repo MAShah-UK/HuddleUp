@@ -2,7 +2,7 @@
 
 #include <QList>
 
-#include "../../Extra/Qt_General.h"
+#include "../../Helpers/Qt_General.h"
 
 /*
  * There are the following style variants:
@@ -12,18 +12,18 @@
 
 class QWidget;
 class QSize;
-class SlideWidgets;
+class SlideWidget;
 
 class SW_StyleVariant
 {
 protected:
 
-    SlideWidgets* parent;
+    SlideWidget* parent;
     Qt_Gen::DirectionalProperties& dirProp;
 
 public:
 
-    SW_StyleVariant(SlideWidgets* parent);
+    SW_StyleVariant(SlideWidget* parent);
     virtual ~SW_StyleVariant() {}
 
     virtual void  moveWidgets() = 0;
@@ -36,7 +36,7 @@ class SW_StyleVariant_Queue : public SW_StyleVariant
 {
 
 public:
-    SW_StyleVariant_Queue(SlideWidgets* parent);
+    SW_StyleVariant_Queue(SlideWidget* parent);
     void  moveWidgets() override;
     int   totalWidgetDistance() override;
     void  processFlickDisp(double velocity);
@@ -45,7 +45,7 @@ public:
 class SW_StyleVariant_Single : public SW_StyleVariant
 {
 public:
-    SW_StyleVariant_Single(SlideWidgets* parent);
+    SW_StyleVariant_Single(SlideWidget* parent);
     void  moveWidgets() override;
     int   totalWidgetDistance() override;
     void  processFlickDisp(double velocity) override;

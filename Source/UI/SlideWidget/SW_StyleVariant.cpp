@@ -2,20 +2,19 @@
 
 #include <QWidget>
 #include <QtMath>
-#include <QDebug>
 
-#include "SlideWidgets.h"
-#include "Extra/Math_General.h"
+#include "SlideWidget.h"
+#include "Helpers/Math_General.h"
 
 // SW_StyleVariant
 
-SW_StyleVariant::SW_StyleVariant(SlideWidgets* parent)
+SW_StyleVariant::SW_StyleVariant(SlideWidget* parent)
     : parent(parent), dirProp(parent->dirProp)
 {}
 
 // SW_StyleVariant_Queue
 
-SW_StyleVariant_Queue::SW_StyleVariant_Queue(SlideWidgets* parent)
+SW_StyleVariant_Queue::SW_StyleVariant_Queue(SlideWidget* parent)
     : SW_StyleVariant(parent)
 {}
 
@@ -56,7 +55,7 @@ void SW_StyleVariant_Queue::processFlickDisp(double velocity)
 
 // SW_StyleVariant_Single
 
-SW_StyleVariant_Single::SW_StyleVariant_Single(SlideWidgets* parent)
+SW_StyleVariant_Single::SW_StyleVariant_Single(SlideWidget* parent)
     : SW_StyleVariant(parent)
 {}
 

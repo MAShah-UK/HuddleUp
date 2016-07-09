@@ -2,13 +2,13 @@
 
 #include <QWidget>
 
-// Change to this when SlideWidgets is complete
+// Change to this when SlideWidget is complete
 // and seperate copy is stored from project for
 // future use.
-// #include "Extra/Math_General.h"
+// #include "Helpers/Math_General.h"
 
-#include "../../Extra/Math_General.h"
-#include "../../Extra/Qt_General.h"
+#include "../../Helpers/Math_General.h"
+#include "../../Helpers/Qt_General.h"
 
 /*
  * This container allows inserting and sliding through widgets.
@@ -16,7 +16,7 @@
  * dimensions. Optionally they can be upscaled.
  */
 
-class SW_Properties
+class SWProperties
 {
 public:
 
@@ -25,13 +25,13 @@ public:
     bool   shouldUpscale       = false; // Maintains aspect ratio.
     bool   isHorizontal        = true;  // False lays widgets vertically.
     bool   isFlickable         = true;
-    int    flickDuration       = 750;   // msec
+    int    flickDuration       = 400;   // msec
     int    spacing             = 10;    // pixels
     double flickSensitivity    = 1.0;   // < 1 slower, > 1 faster
     StyleVariants styleVariant = SV_Queue;
 };
 
-class SlideWidgets : public QWidget
+class SlideWidget : public QWidget
 {
     Q_OBJECT
 
@@ -43,9 +43,9 @@ class SlideWidgets : public QWidget
     Qt_Gen::DirectionalProperties dirProp;
     QList<QWidget*> widgets;
     QList<QSize> initialWidgetsSize;
-    SW_Properties SWProps;
+    SWProperties SWProps;
 
-    void setStyleVariant(SW_Properties::StyleVariants sVar);
+    void setStyleVariant(SWProperties::StyleVariants sVar);
 
     void moveWidgets();
     float TWDScalingRatio = 0;
@@ -84,8 +84,8 @@ protected slots:
 
 public:
 
-    SlideWidgets(QWidget* parent = nullptr);
-    ~SlideWidgets();
+    SlideWidget(QWidget* parent = nullptr, const SWProperties& SWProps = SWProperties());
+    ~SlideWidget();
 
     void addWidget(QList<QWidget*> newWidgets, bool placeAfter = true, QWidget* target = nullptr);
     void addWidget(std::initializer_list<QWidget*> newWidgets, bool placeAfter = true, QWidget* target = nullptr);
@@ -93,8 +93,8 @@ public:
     void removeWidget(QWidget* target = nullptr, bool shouldDelete = true);
     void clearWidgets(bool shouldDelete = true);
     void setWidgetSize(QWidget* widget, const QSize& widgetSize);
-    SW_Properties properties();
-    void properties(const SW_Properties& props);
+    SWProperties properties();
+    void properties(const SWProperties& props);
     void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
