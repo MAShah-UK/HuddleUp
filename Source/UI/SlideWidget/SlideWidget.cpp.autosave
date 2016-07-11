@@ -457,8 +457,3 @@ void SlideWidget::unlinkSW(SlideWidget* other)
 {
     linkedSW.removeOne(other);
 }
-
-void SlideWidget::linkedDisplacement_internal(SlideWidget* other)
-{
-    totalInputDisp = other->totalInputDisp;
-}

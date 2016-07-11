@@ -77,6 +77,9 @@ class SlideWidget : public QWidget
     double currentInputPos = 0;
     QList<double> inputPositions;
 
+    // For linked SWs.
+    QList<SlideWidget*> linkedSW;
+
 protected slots:
 
     void processTarget();
@@ -98,4 +101,6 @@ public:
     void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
+    void linkSW(SlideWidget* other);
+    void unlinkSW(SlideWidget* other);
 };

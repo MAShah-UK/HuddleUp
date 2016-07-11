@@ -14,6 +14,7 @@ SOURCES   += main.cpp \
              UI/TallUI/TallRootWidget.cpp \
              UI/SlideWidget/SlideWidget.cpp \
              UI/SlideWidget/SW_StyleVariant.cpp \
+             UI/CaptionWidget/CaptionWidget.cpp
 
 HEADERS   += Helpers/Math_General.h \
              Helpers/Qt_General.h \
@@ -22,6 +23,7 @@ HEADERS   += Helpers/Math_General.h \
              UI/TallUI/TallRootWidget.h \
              UI/SlideWidget/SlideWidget.h \
              UI/SlideWidget/SW_StyleVariant.h \
+             UI/CaptionWidget/CaptionWidget.h
 
 RESOURCES += resources.qrc
 

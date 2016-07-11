@@ -37,12 +37,6 @@ void TallRootWidget::setupMenuBar()
 
     // Add menu icons.
 
-    CWProperties CWProps;
-    CWProps.parent = this;
-    CWProps.maxScreenPercentage = 10;
-    CWProps.
-
-
     slideWidget->addWidget({
     Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Chats.png",    length, 10),
     Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Media.png",    length, 10),
@@ -52,9 +46,10 @@ void TallRootWidget::setupMenuBar()
 
 void TallRootWidget::setupChatsMenu()
 {
-
-
-    QVBoxLayout* chatsLayout = new QVBoxLayout;
+    CWProperties CWProps;
+    CWProps.parent = this;
+    CWProps.maxScreenPercentage = 10;
+    CWProps.
 }
 
 void TallRootWidget::setupMediaMenu()
