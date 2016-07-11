@@ -3,11 +3,8 @@
 #include <qDebug>
 #include <QSize>
 #include <QPoint>
-#include <QLabel>
-#include <QPainter>
-#include <QPainterPath>
-#include <QApplication>
-#include <QDesktopWidget>
+#include <QPalette>
+#include <QWidget>
 
 // Stateless:
 
@@ -19,10 +16,10 @@ void Qt_Gen::setBackgroundColor(QWidget* widget, const QColor& color)
     widget->setPalette(p);
 }
 
-QSize Qt_Gen::sizePerc(double percentage, const QSize& ofSize)
+QSize Qt_Gen::sizePerc(const QPoint& percentages, const QSize& ofSize)
 {
-    return {int( percentage/100 * ofSize.width() ),
-            int( percentage/100 * ofSize.height() )};
+    return {int( percentages.x()/100 * ofSize.width() ),
+            int( percentages.y()/100 * ofSize.height() )};
 }
 
 int Qt_Gen::min(const QSize& size)
@@ -44,6 +41,11 @@ Qt_Gen::DirectionalProperties::DirectionalProperties(bool isHorizontal)
 void Qt_Gen::DirectionalProperties::setDirection(bool isHorizontal)
 {
     DirectionalProperties::isHorizontal = isHorizontal;
+}
+
+void Qt_Gen::DirectionalProperties::setDirection(const QSize& size)
+{
+    isHorizontal = size.width() > size.height() ? true : false;
 }
 
 bool Qt_Gen::DirectionalProperties::isDirHorizontal()

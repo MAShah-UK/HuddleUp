@@ -15,7 +15,7 @@ namespace Qt_Gen
 // Stateless:
 
 void setBackgroundColor(QWidget* widget, const QColor& color);
-QSize sizePerc(double percentage, const QSize& ofSize);
+QSize sizePerc(const QPoint& percentages, const QSize& ofSize);
 int min(const QSize& size);
 int max(const QSize& size);
 
@@ -30,6 +30,7 @@ public:
 
     DirectionalProperties(bool isHorizontal = true);
     void setDirection(bool isHorizontal = true);
+    void setDirection(const QSize& size);
     bool isDirHorizontal();
 
     int operator()    (const QSize&   val);

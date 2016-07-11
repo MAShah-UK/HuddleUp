@@ -24,6 +24,7 @@ public:
 
     bool   shouldUpscale       = false; // Maintains aspect ratio.
     bool   isHorizontal        = true;  // False lays widgets vertically.
+    bool   isDraggable         = true;  // False here also means not flickable.
     bool   isFlickable         = true;
     int    flickDuration       = 400;   // msec
     int    spacing             = 10;    // pixels

@@ -3,9 +3,8 @@
 #include <QVBoxLayout>
 #include <qDebug>
 
-#include "../CaptionWidget/CaptionWidget.h"
-
 #include "../SlideWidget/SlideWidget.h"
+#include "../CaptionWidget/CaptionWidget.h"
 
 TallRootWidget::TallRootWidget(QWidget* parent)
     : QWidget(parent)
@@ -37,24 +36,22 @@ void TallRootWidget::setupMenuBar()
 
     // Add menu icons.
 
+    CaptionWidget captionWidget;
     CWProperties CWProps;
     CWProps.parent = this;
     CWProps.maxScreenPercentage = 10;
-    CWProps.
+    CWProps.paths.append("://Resources/Icons/MenuBar/Chats.png");
+    CWProps.paths.append("://Resources/Icons/MenuBar/Media.png");
+    CWProps.paths.append("://Resources/Icons/MenuBar/Settings.png");
+    CWProps.paths.append("://Resources/Icons/MenuBar/Search.png");
 
-
-    slideWidget->addWidget({
-    Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Chats.png",    length, 10),
-    Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Media.png",    length, 10),
-    Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Settings.png", length, 10),
-    Qt_Gen::iconWidget("://Resources/Icons/MenuBar/Search.png",   length, 10)});
+    slideWidget->addWidget({captionWidget(CWProps, 0), captionWidget(CWProps, 1),
+                            captionWidget(CWProps, 2), captionWidget(CWProps, 3)});
 }
 
 void TallRootWidget::setupChatsMenu()
 {
 
-
-    QVBoxLayout* chatsLayout = new QVBoxLayout;
 }
 
 void TallRootWidget::setupMediaMenu()

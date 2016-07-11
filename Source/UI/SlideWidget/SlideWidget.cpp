@@ -183,7 +183,10 @@ bool SlideWidget::event(QEvent* ev)
 
     case QEvent::Type::MouseMove :
     case QEvent::Type::TouchUpdate :
-         processInputDisplacement(currentInputPos);
+
+         if (SWProps.isDraggable)
+            processInputDisplacement(currentInputPos);
+
     break;
 
     case QEvent::Type::MouseButtonRelease :
@@ -456,9 +459,4 @@ void SlideWidget::linkSW(SlideWidget* other)
 void SlideWidget::unlinkSW(SlideWidget* other)
 {
     linkedSW.removeOne(other);
-}
-
-void SlideWidget::linkedDisplacement_internal(SlideWidget* other)
-{
-    totalInputDisp = other->totalInputDisp;
 }
