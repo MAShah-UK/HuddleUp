@@ -15,9 +15,12 @@ namespace Qt_Gen
 // Stateless:
 
 void setBackgroundColor(QWidget* widget, const QColor& color);
-QSize sizePerc(const QPoint& percentages, const QSize& ofSize);
 int min(const QSize& size);
 int max(const QSize& size);
+
+QSize sizePerc(double percentage);
+QSize sizePerc(double percentage, const QSize& ofSize);
+QSize sizePerc(const QPoint& percentages, const QSize& ofSize);
 
 // With state:
 

@@ -4,5 +4,6 @@
         <file>Resources/Icons/MenuBar/Media.png</file>
         <file>Resources/Icons/MenuBar/Search.png</file>
         <file>Resources/Icons/MenuBar/Settings.png</file>
+        <file>Resources/Icons/MenuBar/stuff.png</file>
     </qresource>
 </RCC>

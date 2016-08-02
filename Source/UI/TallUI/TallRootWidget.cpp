@@ -27,7 +27,7 @@ void TallRootWidget::setupMenuBar()
 
     SWProperties SWProps;
     SWProps.shouldUpscale = true;
-    SWProps.spacing       = Qt_Gen::sizePerc(10, size()).height();
+    SWProps.spacing       = Qt_Gen::sizePerc(1).height();
     SWProps.styleVariant  = SWProperties::SV_Single;
 
     slideWidget = new SlideWidget(this, SWProps);
@@ -36,17 +36,22 @@ void TallRootWidget::setupMenuBar()
 
     // Add menu icons.
 
-    CaptionWidget captionWidget;
     CWProperties CWProps;
     CWProps.parent = this;
     CWProps.maxScreenPercentage = 10;
-    CWProps.paths.append("://Resources/Icons/MenuBar/Chats.png");
-    CWProps.paths.append("://Resources/Icons/MenuBar/Media.png");
-    CWProps.paths.append("://Resources/Icons/MenuBar/Settings.png");
-    CWProps.paths.append("://Resources/Icons/MenuBar/Search.png");
+    CWProps.mainText = "Main Text";
+    CWProps.subText  = "This is the sub text.";
 
-    slideWidget->addWidget({captionWidget(CWProps, 0), captionWidget(CWProps, 1),
-                            captionWidget(CWProps, 2), captionWidget(CWProps, 3)});
+    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Chats.png");
+    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Media.png");
+    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Settings.png");
+    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Search.png");
+    CWProps.imagePaths.append("://Resources/Icons/MenuBar/stuff.png");
+
+    CaptionWidget captionWidget(CWProps);
+
+    slideWidget->addWidget({captionWidget(0), captionWidget(1),
+                            captionWidget(2), captionWidget(4)});
 }
 
 void TallRootWidget::setupChatsMenu()
