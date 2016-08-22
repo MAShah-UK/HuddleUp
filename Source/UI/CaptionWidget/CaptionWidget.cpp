@@ -34,7 +34,8 @@ QPixmap CaptionWidget::editImage(QImage& image)
     }
 
     QPainterPath clip;
-    clip.addRoundedRect(0, 0, image.width(), image.height(), imageBorderRadius.x(), imageBorderRadius.y());
+    clip.addRoundedRect(0, 0, image.width(), image.height(),
+                        imageBorderRadius.x(), imageBorderRadius.y());
 
     QPainter paint(&canvas);
     paint.setRenderHint(QPainter::Antialiasing);
@@ -42,7 +43,46 @@ QPixmap CaptionWidget::editImage(QImage& image)
     paint.fillRect(0, 0, image.width(), image.height(), CWProps.imageBGColor);
     paint.drawImage(0, 0, image);
     paint.setPen(CWProps.imageBorderPen);
-    paint.drawRoundedRect(0, 0, image.width(), image.height(), imageBorderRadius.x(), imageBorderRadius.y());
+    paint.drawRoundedRect(0, 0, image.width(), image.height(),
+                          imageBorderRadius.x(), imageBorderRadius.y());
+
+    return canvas;
+}
+
+QPixmap CaptionWidget::addText(QPixmap& pixmap)
+{
+    QPixmap canvas(pixmap.width(), pixmap.height() * 2);
+    canvas.fill(QColor(0, 0, 0, 0)); // Default is black.
+
+    QPoint textBorderRadius = CWProps.textBorderRadius;
+    if (textBorderRadius.x() < 0 || textBorderRadius.y() < 0)
+    {
+        textBorderRadius.setX(pixmap.width()/5);
+        textBorderRadius.setY(pixmap.height()/5);
+    }
+
+    QPainterPath clip;
+    clip.addRoundedRect(0, pixmap.height(), pixmap.width(), pixmap.height(),
+                        textBorderRadius.x(), textBorderRadius.y());
+
+    QPainter paint(&canvas);
+    paint.setRenderHint(QPainter::Antialiasing);
+    paint.drawPixmap(0, 0, pixmap);
+    paint.setClipPath(clip);
+    paint.fillRect(0, pixmap.height(), pixmap.width(), pixmap.height(),
+                   CWProps.textBGColor);
+
+    paint.setFont(CWProps.mainTextFont);
+    QRect textBR = paint.boundingRect(0, 0, 0, 0, Qt::AlignLeft, CWProps.mainText);
+    paint.drawText(textBorderRadius.x(), pixmap.height() + textBorderRadius.y() + textBR.height(), CWProps.mainText);
+    paint.setFont(CWProps.subTextFont);
+    int subTextSpacing = pixmap.height() + textBorderRadius.y() + textBR.height() + CWProps.mainAndSubTextSpacing;
+    paint.drawText(textBorderRadius.x(), subTextSpacing, CWProps.subText);
+
+    paint.setPen(CWProps.textBorderPen);
+    paint.drawRoundedRect(0, pixmap.height(), pixmap.width(), pixmap.height(),
+                          textBorderRadius.x(), textBorderRadius.y());
+    paint.drawRoundedRect(textBorderRadius.x(), pixmap.height() + textBorderRadius.y(), textBR.width(), textBR.height(), 0, 0);
 
     return canvas;
 }
@@ -74,5 +114,10 @@ void CaptionWidget::properties(const CWProperties& CWProps)
 
 QLabel* CaptionWidget::operator()(int index)
 {
-    return createLabel(editImage( loadScaledImage(index) ));
+    QImage image    = loadScaledImage(index);
+    QPixmap pixmap1 = editImage(image);
+    QPixmap pixmap2 = addText(pixmap1);
+    QLabel* label   = createLabel(pixmap2);
+
+    return label;
 }

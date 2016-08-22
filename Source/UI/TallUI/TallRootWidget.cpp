@@ -37,16 +37,16 @@ void TallRootWidget::setupMenuBar()
     // Add menu icons.
 
     CWProperties CWProps;
-    CWProps.parent = this;
-    CWProps.maxScreenPercentage = 10;
-    CWProps.mainText = "Main Text";
-    CWProps.subText  = "This is the sub text.";
-
     CWProps.imagePaths.append("://Resources/Icons/MenuBar/Chats.png");
     CWProps.imagePaths.append("://Resources/Icons/MenuBar/Media.png");
     CWProps.imagePaths.append("://Resources/Icons/MenuBar/Settings.png");
     CWProps.imagePaths.append("://Resources/Icons/MenuBar/Search.png");
     CWProps.imagePaths.append("://Resources/Icons/MenuBar/stuff.png");
+    CWProps.parent = this;
+    CWProps.maxScreenPercentage = 10;
+
+    CWProps.mainText = "Main";
+    CWProps.subText  = "This is the sub text.";
 
     CaptionWidget captionWidget(CWProps);
 

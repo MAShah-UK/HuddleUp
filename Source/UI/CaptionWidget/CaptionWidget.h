@@ -17,10 +17,8 @@ public:
     QList<QString> imagePaths;
     QWidget* parent = nullptr;
 
-    QString mainText;
-    QString subText;
-
-
+    QString mainText = "This is mainText";
+    QString subText = "This is subText";
 
     // Dimensions
 
@@ -28,11 +26,15 @@ public:
     QPoint imageBorderRadius   = {-1, -1}; // <0 is automatic, radius scales with image.
     QPoint textBorderRadius    = {-1, -1};
     int imageTextSpacing       = 10;
+    int mainAndSubTextSpacing  = 0;
 
     // Colors/Design
 
     QPen imageBorderPen = {QBrush(QColor(0, 0, 0)), 5};
     QPen textBorderPen  = {QBrush(QColor(0, 0, 0)), 5};
+
+    QFont mainTextFont = QFont("times", 50, 50);
+    QFont subTextFont;
 
     QColor imageBGColor  = {220, 220, 220};
     QColor textBGColor   = {250, 250, 250};
@@ -47,6 +49,7 @@ class CaptionWidget
 
     QImage loadScaledImage(int index);
     QPixmap editImage(QImage& image);
+    QPixmap addText(QPixmap& pixmap);
     QLabel* createLabel(QPixmap& pixmap);
 
 public:
