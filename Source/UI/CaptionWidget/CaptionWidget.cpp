@@ -73,16 +73,19 @@ QPixmap CaptionWidget::addText(QPixmap& pixmap)
                    CWProps.textBGColor);
 
     paint.setFont(CWProps.mainTextFont);
-    QRect textBR = paint.boundingRect(0, 0, 0, 0, Qt::AlignLeft, CWProps.mainText);
-    paint.drawText(textBorderRadius.x(), pixmap.height() + textBorderRadius.y() + textBR.height(), CWProps.mainText);
+    QRect textBR = QFontMetrics(CWProps.mainTextFont).tightBoundingRect(CWProps.mainText);
+    int mainTextSpacing = pixmap.height() + textBorderRadius.y() + textBR.height();
+    paint.drawText(textBorderRadius.x(), mainTextSpacing, CWProps.mainText);
+
     paint.setFont(CWProps.subTextFont);
-    int subTextSpacing = pixmap.height() + textBorderRadius.y() + textBR.height() + CWProps.mainAndSubTextSpacing;
+    textBR = QFontMetrics(CWProps.subTextFont).tightBoundingRect(CWProps.subText);
+    int subTextSpacing = mainTextSpacing + textBR.height() + CWProps.mainAndSubTextSpacing;
     paint.drawText(textBorderRadius.x(), subTextSpacing, CWProps.subText);
 
     paint.setPen(CWProps.textBorderPen);
     paint.drawRoundedRect(0, pixmap.height(), pixmap.width(), pixmap.height(),
                           textBorderRadius.x(), textBorderRadius.y());
-    paint.drawRoundedRect(textBorderRadius.x(), pixmap.height() + textBorderRadius.y(), textBR.width(), textBR.height(), 0, 0);
+
 
     return canvas;
 }

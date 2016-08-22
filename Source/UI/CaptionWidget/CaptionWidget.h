@@ -26,14 +26,14 @@ public:
     QPoint imageBorderRadius   = {-1, -1}; // <0 is automatic, radius scales with image.
     QPoint textBorderRadius    = {-1, -1};
     int imageTextSpacing       = 10;
-    int mainAndSubTextSpacing  = 0;
+    int mainAndSubTextSpacing  = 10;
 
     // Colors/Design
 
     QPen imageBorderPen = {QBrush(QColor(0, 0, 0)), 5};
     QPen textBorderPen  = {QBrush(QColor(0, 0, 0)), 5};
 
-    QFont mainTextFont = QFont("times", 50, 50);
+    QFont mainTextFont;
     QFont subTextFont;
 
     QColor imageBGColor  = {220, 220, 220};
