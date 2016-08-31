@@ -45,8 +45,8 @@ void TallRootWidget::setupMenuBar()
     CWProps.parent = this;
     CWProps.maxScreenPercentage = 10;
 
-    CWProps.textMain = "Main Text";
-    CWProps.textSub  = "This is the sub text.";
+    CWProps.mainText.text = "Main Text";
+    CWProps.subText.text  = "This is the sub text.";
 
     CaptionWidget captionWidget(CWProps);
 
