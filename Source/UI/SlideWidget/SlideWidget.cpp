@@ -63,6 +63,9 @@ void SlideWidget::resizeWidgets()
             scaleFactor = ((double)size().width() - 2*SWProps.spacing) /
                           OwidgetDim.width();
 
+        if (!SWProps.shouldUpscale && scaleFactor > 1)
+            scaleFactor = 1;
+
         if (scaleFactor <= 1 ||
             SWProps.shouldUpscale && scaleFactor > 1)
         {

@@ -26,7 +26,7 @@ void TallRootWidget::setupMenuBar()
     // Setup slideWidget.
 
     SWProperties SWProps;
-    SWProps.shouldUpscale = true;
+    SWProps.shouldUpscale = false;
     SWProps.spacing       = Qt_Gen::sizePerc(1).height();
     SWProps.styleVariant  = SWProperties::SV_Single;
 
@@ -45,8 +45,8 @@ void TallRootWidget::setupMenuBar()
     CWProps.parent = this;
     CWProps.maxScreenPercentage = 10;
 
-    CWProps.mainText = "Main Text";
-    CWProps.subText  = "This is the sub text.";
+    CWProps.textMain = "Main Text";
+    CWProps.textSub  = "This is the sub text.";
 
     CaptionWidget captionWidget(CWProps);
 
