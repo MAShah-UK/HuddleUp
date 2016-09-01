@@ -21,10 +21,10 @@ public:
 
     struct DesignData
     {
-        QPoint borderRadius = {-1, -1}; // <0 is automatic, radius scales with image.
+        QSize borderRadius = {-1, -1}; // <0 is automatic, radius scales with image.
         QPen borderPen      = {QBrush(QColor(0, 0, 0)), 5};
         QColor bgColor      = {220, 220, 220};
-    } image, text;
+    } image, text; // These refer to the image and text areas of the widget.
 
     struct TextData
     {
@@ -47,6 +47,8 @@ class CaptionWidget
     QLabel* createLabel(const QPixmap& pixmap);
 
     // Helpers.
+
+    void calculateBorderRadius(QSize& target, const QSize& source);
 
     void drawText(QPainter& painter, const CWProperties::TextData& textData,
                   const QPoint& position);

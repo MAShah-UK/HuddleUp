@@ -23,17 +23,15 @@ QImage CaptionWidget::loadScaledImage(int index)
 
 QPixmap CaptionWidget::editImage(const QImage& image)
 {
+    // Calculate dimensions.
+
+    calculateBorderRadius(CWProps.image.borderRadius, image.size());
+    QRectF border(0, 0, image.width(), image.height());
+
+    // Draw image portion of widget.
+
     QPixmap canvas(image.width(), image.height());
     canvas.fill(QColor(0, 0, 0, 0));
-
-    QPoint& radius = CWProps.image.borderRadius;
-    if (radius.x() < 0 || radius.y() < 0)
-    {
-        radius.setX(image.width()/7);
-        radius.setY(radius.x()); // To get a circular border.
-    }
-
-    QRectF border(0, 0, image.width(), image.height());
 
     QPainter painter(&canvas);
     drawBorder(painter, CWProps.image, border, &image);
@@ -46,23 +44,19 @@ QPixmap CaptionWidget::addText(const QPixmap& pixmap)
     // TODO: Set minimum left and top text offset to one letter's size.
     // Calculate dimensions.
 
-    QPoint& radius = CWProps.text.borderRadius;
-    if (radius.x() < 0 || radius.y() < 0)
-    {
-        radius.setX(pixmap.width()/7);
-        radius.setY(radius.x()); // To get a circular border.
-    }
+    calculateBorderRadius(CWProps.text.borderRadius, pixmap.size());
+    const QSize& radius = CWProps.text.borderRadius;
 
     QRect mainTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.mainText.text);
     QRect subTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.subText.text);
 
-    int netHeight = CWProps.spacingImageText + radius.y() + mainTextBR.height() +
+    int netHeight = CWProps.spacingImageText + radius.height() + mainTextBR.height() +
                     CWProps.spacingMainAndSubText + subTextBR.height();
 
     QRectF border(0, pixmap.height() + CWProps.spacingImageText,
                   pixmap.width(), netHeight - CWProps.spacingImageText);
 
-    // Begin drawing.
+    // Draw text portion of widget.
 
     QPixmap canvas(pixmap.width(), netHeight + pixmap.height());
     canvas.fill(QColor(0, 0, 0, 0)); // Default is black.
@@ -74,12 +68,12 @@ QPixmap CaptionWidget::addText(const QPixmap& pixmap)
     // Draw text.
 
     int mainTextSpacing = pixmap.height() + CWProps.spacingImageText +
-                          radius.y()/2 + mainTextBR.height();
-    drawText(painter, CWProps.mainText, {radius.x()/2, mainTextSpacing});
+                          radius.height()/2 + mainTextBR.height();
+    drawText(painter, CWProps.mainText, {radius.width()/2, mainTextSpacing});
 
     int subTextSpacing = mainTextSpacing + subTextBR.height() +
                          CWProps.spacingMainAndSubText;
-    drawText(painter, CWProps.subText, {radius.x()/2, subTextSpacing});
+    drawText(painter, CWProps.subText, {radius.width()/2, subTextSpacing});
 
     return canvas;
 }
@@ -95,6 +89,15 @@ QLabel* CaptionWidget::createLabel(const QPixmap& pixmap)
     return label;
 }
 
+void CaptionWidget::calculateBorderRadius(QSize& target, const QSize& source)
+{
+    if (target.width() < 0 || target.height() < 0)
+    {
+        target.setWidth(source.width()/7); // 7 was decided arbitrarily.
+        target.setHeight(target.width()); // To get a circular border we make xy equal.
+    }
+}
+
 void CaptionWidget::drawText(QPainter& painter, const CWProperties::TextData& textData,
                              const QPoint& position)
 {
@@ -107,7 +110,7 @@ void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData
                                const QRectF& border, const QImage* const image)
 {
     QPainterPath clipPath;
-    clipPath.addRoundedRect(border, design.borderRadius.x(), design.borderRadius.y());
+    clipPath.addRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());
 
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipPath(clipPath);
@@ -117,7 +120,7 @@ void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData
         painter.drawImage(0, 0, *image);
 
     painter.setPen(design.borderPen);
-    painter.drawRoundedRect(border, design.borderRadius.x(), design.borderRadius.y());
+    painter.drawRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());
 }
 
 CaptionWidget::CaptionWidget(const CWProperties& CWProps)
