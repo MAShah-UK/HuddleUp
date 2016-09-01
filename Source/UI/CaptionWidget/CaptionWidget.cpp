@@ -5,8 +5,18 @@
 #include <QDebug>
 
 #include "../../Helpers/Qt_General.h"
-
 #include "../../Helpers/Math_General.h"
+
+CWProperties::CWProperties(QWidget* parent)
+{
+    this->parent = parent;
+
+    mainText.font.setPixelSize(20);
+    mainText.font.setBold(true);
+    mainText.text = "mainText";
+
+    subText.text = "subText";
+}
 
 QImage CaptionWidget::loadScaledImage(int index)
 {
@@ -26,7 +36,7 @@ QPixmap CaptionWidget::editImage(const QImage& image)
     // Calculate dimensions.
 
     calculateBorderRadius(CWProps.image.borderRadius, image.size());
-    QRectF border(0, 0, image.width(), image.height());
+    QRect border(0, 0, image.width(), image.height());
 
     // Draw image portion of widget.
 
@@ -41,20 +51,24 @@ QPixmap CaptionWidget::editImage(const QImage& image)
 
 QPixmap CaptionWidget::addText(const QPixmap& pixmap)
 {
-    // TODO: Set minimum left and top text offset to one letter's size.
     // Calculate dimensions.
 
     calculateBorderRadius(CWProps.text.borderRadius, pixmap.size());
-    const QSize& radius = CWProps.text.borderRadius;
+    QSize radius = CWProps.text.borderRadius;
 
     QRect mainTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.mainText.text);
-    QRect subTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.subText.text);
+    QRect subTextBR = QFontMetrics(CWProps.subText.font).tightBoundingRect(CWProps.subText.text);
+
+    // To make sure text is at an appropriate distance from the border.
+    int minTextHeight = Math::min(mainTextBR.height(), subTextBR.height());
+    radius.setHeight(Math::max(radius.height(), minTextHeight));
+    radius.setWidth(Math::max(radius.width(), minTextHeight));
 
     int netHeight = CWProps.spacingImageText + radius.height() + mainTextBR.height() +
                     CWProps.spacingMainAndSubText + subTextBR.height();
 
-    QRectF border(0, pixmap.height() + CWProps.spacingImageText,
-                  pixmap.width(), netHeight - CWProps.spacingImageText);
+    QRect border(0, pixmap.height() + CWProps.spacingImageText,
+                 pixmap.width(), netHeight - CWProps.spacingImageText);
 
     // Draw text portion of widget.
 
@@ -107,7 +121,7 @@ void CaptionWidget::drawText(QPainter& painter, const CWProperties::TextData& te
 }
 
 void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData& design,
-                               const QRectF& border, const QImage* const image)
+                               const QRect& border, const QImage* const image)
 {
     QPainterPath clipPath;
     clipPath.addRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());

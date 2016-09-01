@@ -8,21 +8,30 @@ class CWProperties;
 class QWidget;
 class QImage;
 
+/*
+ * To use this widget generator create an instance of CWProperties and set the
+ * parent widget and the paths to the image files. Then set that maxScreenPercentage
+ * that you expect the image to take when the application is maximised. Set the other
+ * required data. Create an instance of CaptionWidget and pass the CWProperties
+ * instance via the constructor. Use the () operator with the appropriate index to
+ * output a finalised QLabel representing the caption widget.
+ */
+
 class CWProperties
 {
 public:
 
-    QWidget* parent = nullptr;
+    QWidget* parent;
     QList<QString> imagePaths;
 
-    double maxScreenPercentage = 10.0; // Used to set resolution for the pixel map.
-    int spacingImageText       = 5;
+    double maxScreenPercentage = 10.0; // Sets the resolution for the imported image.
+    int spacingImageText       = 0;
     int spacingMainAndSubText  = 5;
 
     struct DesignData
     {
-        QSize borderRadius = {-1, -1}; // <0 is automatic, radius scales with image.
-        QPen borderPen      = {QBrush(QColor(0, 0, 0)), 5};
+        QSize borderRadius  = {-1, -1}; // <0 is automatic, radius scales with image.
+        QPen borderPen      = {QBrush(QColor(0, 0, 0)), 7};
         QColor bgColor      = {220, 220, 220};
     } image, text; // These refer to the image and text areas of the widget.
 
@@ -30,8 +39,10 @@ public:
     {
         QFont font;
         QColor color = {0, 0, 0};
-        QString text = "Sample text.";
+        QString text;
     } mainText, subText;
+
+    CWProperties(QWidget* parent = nullptr);
 };
 
 
@@ -54,7 +65,7 @@ class CaptionWidget
                   const QPoint& position);
 
     void drawBorder(QPainter& painter, const CWProperties::DesignData& design,
-                    const QRectF& border, const QImage* const image = nullptr);
+                    const QRect& border, const QImage* const image = nullptr);
 
 public:
     CaptionWidget(const CWProperties& CWProps);
