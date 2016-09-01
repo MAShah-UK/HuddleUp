@@ -15,6 +15,10 @@ class QImage;
  * required data. Create an instance of CaptionWidget and pass the CWProperties
  * instance via the constructor. Use the () operator with the appropriate index to
  * output a finalised QLabel representing the caption widget.
+ *
+ * An image path and mainText must be provided.
+ * maxScreenPercentage and parent should be carefuelly considered.
+ * subText is optional as are the styling and spacing options.
  */
 
 class CWProperties

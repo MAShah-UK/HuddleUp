@@ -56,6 +56,9 @@ QPixmap CaptionWidget::addText(const QPixmap& pixmap)
     calculateBorderRadius(CWProps.text.borderRadius, pixmap.size());
     QSize radius = CWProps.text.borderRadius;
 
+    int spacingMainAndSubText = 0;
+    if (!CWProps.subText.text.isEmpty()) spacingMainAndSubText = CWProps.spacingMainAndSubText;
+
     QRect mainTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.mainText.text);
     QRect subTextBR = QFontMetrics(CWProps.subText.font).tightBoundingRect(CWProps.subText.text);
 
@@ -65,7 +68,7 @@ QPixmap CaptionWidget::addText(const QPixmap& pixmap)
     radius.setWidth(Math::max(radius.width(), minTextHeight));
 
     int netHeight = CWProps.spacingImageText + radius.height() + mainTextBR.height() +
-                    CWProps.spacingMainAndSubText + subTextBR.height();
+                    spacingMainAndSubText + subTextBR.height();
 
     QRect border(0, pixmap.height() + CWProps.spacingImageText,
                  pixmap.width(), netHeight - CWProps.spacingImageText);
@@ -86,7 +89,7 @@ QPixmap CaptionWidget::addText(const QPixmap& pixmap)
     drawText(painter, CWProps.mainText, {radius.width()/2, mainTextSpacing});
 
     int subTextSpacing = mainTextSpacing + subTextBR.height() +
-                         CWProps.spacingMainAndSubText;
+                         spacingMainAndSubText;
     drawText(painter, CWProps.subText, {radius.width()/2, subTextSpacing});
 
     return canvas;
