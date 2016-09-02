@@ -1,7 +1,6 @@
 #include "CaptionWidget.h"
 
-#include <QLabel>
-#include <QPalette>
+#include <QPainter>
 #include <QDebug>
 
 #include "../../Helpers/Qt_General.h"
@@ -18,11 +17,11 @@ CWProperties::CWProperties(QWidget* parent)
     subText.text = "subText";
 }
 
-QImage CaptionWidget::loadScaledImage(int index)
+QImage CaptionWidget::loadScaledImage()
 {
     int maxLength = Qt_Gen::max(Qt_Gen::sizePerc(CWProps.maxScreenPercentage));
 
-    QImage image(CWProps.imagePaths.at(index));
+    QImage image(CWProps.imagePath);
     if (image.width() > image.height())
         image = image.scaledToWidth(maxLength, Qt::SmoothTransformation);
     else
@@ -140,23 +139,13 @@ void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData
     painter.drawRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());
 }
 
-CaptionWidget::CaptionWidget(const CWProperties& CWProps)
+CaptionWidget::CaptionWidget(CWProperties& CWProps)
     : CWProps(CWProps)
 {}
 
-CWProperties CaptionWidget::properties()
+QLabel* CaptionWidget::operator()()
 {
-    return CWProps;
-}
-
-void CaptionWidget::properties(const CWProperties& CWProps)
-{
-    CaptionWidget::CWProps = CWProps;
-}
-
-QLabel* CaptionWidget::operator()(int index)
-{
-    QImage image   = loadScaledImage(index);
+    QImage image   = loadScaledImage();
     QPixmap pixmap = editImage(image);
     pixmap         = addText(pixmap);
     QLabel* label  = createLabel(pixmap);

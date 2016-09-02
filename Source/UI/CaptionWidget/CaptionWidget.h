@@ -1,24 +1,20 @@
 #pragma once
 
 #include <QLabel>
-#include <QPainter>
-
-class QLabel;
-class CWProperties;
-class QWidget;
-class QImage;
+#include <QPen>
 
 /*
  * To use this widget generator create an instance of CWProperties and set the
- * parent widget and the paths to the image files. Then set that maxScreenPercentage
+ * parent widget and the path to the image file. Then set that maxScreenPercentage
  * that you expect the image to take when the application is maximised. Set the other
  * required data. Create an instance of CaptionWidget and pass the CWProperties
- * instance via the constructor. Use the () operator with the appropriate index to
- * output a finalised QLabel representing the caption widget.
+ * instance via the constructor. Use the () operator to output a label.
  *
  * An image path and mainText must be provided.
  * maxScreenPercentage and parent should be carefuelly considered.
  * subText is optional as are the styling and spacing options.
+ *
+ * This class requires a valid reference to CWProperties to function.
  */
 
 class CWProperties
@@ -26,7 +22,7 @@ class CWProperties
 public:
 
     QWidget* parent;
-    QList<QString> imagePaths;
+    QString imagePath;
 
     double maxScreenPercentage = 10.0; // Sets the resolution for the imported image.
     int spacingImageText       = 0;
@@ -52,11 +48,11 @@ public:
 
 class CaptionWidget
 {
-    CWProperties CWProps;
+    CWProperties& CWProps;
 
     // Main functions.
 
-    QImage loadScaledImage(int index);
+    QImage loadScaledImage();
     QPixmap editImage(const QImage& image);
     QPixmap addText(const QPixmap& pixmap);
     QLabel* createLabel(const QPixmap& pixmap);
@@ -72,8 +68,6 @@ class CaptionWidget
                     const QRect& border, const QImage* const image = nullptr);
 
 public:
-    CaptionWidget(const CWProperties& CWProps);
-    CWProperties properties();
-    void properties(const CWProperties& CWProps);
-    QLabel* operator()(int index = 0);
+    CaptionWidget(CWProperties& CWProps);
+    QLabel* operator()();
 };

@@ -37,16 +37,16 @@ void TallRootWidget::setupMenuBar()
     // Add menu icons.
 
     CWProperties CWProps(this);
-    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Chats.png");
-    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Media.png");
-    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Settings.png");
-    CWProps.imagePaths.append("://Resources/Icons/MenuBar/Search.png");
-    CWProps.imagePaths.append("://Resources/Icons/MenuBar/stuff.png");
+    CWProps.imagePath = "://Resources/Icons/MenuBar/Chats.png";
+    CWProps.imagePath = "://Resources/Icons/MenuBar/Media.png";
+    CWProps.imagePath = "://Resources/Icons/MenuBar/Settings.png";
+    CWProps.imagePath = "://Resources/Icons/MenuBar/Search.png";
+    CWProps.imagePath = "://Resources/Icons/MenuBar/stuff.png";
 
     CaptionWidget captionWidget(CWProps);
 
-    slideWidget->addWidget({captionWidget(0), captionWidget(1),
-                            captionWidget(2), captionWidget(4)});
+    slideWidget->addWidget({captionWidget(), captionWidget(),
+                            captionWidget(), captionWidget()});
 }
 
 void TallRootWidget::setupChatsMenu()
