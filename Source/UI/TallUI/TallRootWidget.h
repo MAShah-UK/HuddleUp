@@ -7,7 +7,6 @@ class TallRootWidget : public QWidget
     class QVBoxLayout* layout;
 
     void setupMenuBar();
-    class SlideWidget* slideWidget;
 
     void setupChatsMenu();
     void setupMediaMenu();

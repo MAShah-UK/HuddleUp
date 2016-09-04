@@ -26,11 +26,10 @@ void TallRootWidget::setupMenuBar()
     // Setup slideWidget.
 
     SWProperties SWProps;
-    SWProps.shouldUpscale = false;
     SWProps.spacing       = Qt_Gen::sizePerc(1).height();
     SWProps.styleVariant  = SWProperties::SV_Single;
 
-    slideWidget = new SlideWidget(this, SWProps);
+    SlideWidget* slideWidget = new SlideWidget(this, SWProps);
     Qt_Gen::setBackgroundColor(slideWidget, QColor(50, 50, 50));
     layout->addWidget(slideWidget);
 
@@ -52,6 +51,19 @@ void TallRootWidget::setupMenuBar()
 void TallRootWidget::setupChatsMenu()
 {
 
+    // Load chat data from files.
+
+    // Display previously connected LANs in recently connected order.
+
+    // Make CaptionWidgets scrollable.
+
+    SWProperties SWProps;
+    SWProps.isHorizontal = false;
+    SWProps.spacing = Qt_Gen::sizePerc(1).width();
+    SWProps.styleVariant = SWProperties::SV_Queue;
+
+    SlideWidget* slideWidget = new SlideWidget(this, SWProps);
+    layout->addWidget(slideWidget);
 }
 
 void TallRootWidget::setupMediaMenu()
