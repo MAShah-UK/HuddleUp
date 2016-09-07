@@ -18,21 +18,33 @@
  */
 
 class CWProperties
-{
+{   
 public:
 
     QWidget* parent;
     QString imagePath;
 
-    double maxScreenPercentage = 10.0; // Sets the resolution for the imported image.
-    int spacingImageText       = 0;
-    int spacingMainAndSubText  = 5;
+    enum ESizeType
+    {
+        ST_Absolute, // Total size will be set size.
+        ST_Image     // Image will be at set size.
+    } sizeType = ST_Absolute;
+    QSize size = {250, 250}; // The enum applies to the negative values here.
+
+    struct SpacingData
+    {
+        int imageText       = 0;
+        int mainAndSubText  = 5;
+    } spacing;
 
     struct DesignData
     {
-        QSize borderRadius  = {-1, -1}; // <0 is automatic, radius scales with image.
-        QPen borderPen      = {QBrush(QColor(0, 0, 0)), 7};
-        QColor bgColor      = {220, 220, 220};
+        QSize borderRadius = {-1, -1}; // <0 is automatic, radius scales with image.
+        QPen borderPen     = {QBrush(QColor(0, 0, 0)), 7};
+        QColor bgColor     = {220, 220, 220};
+    private:
+        friend class CaptionWidget;
+        QSize _borderRadius; // The calculated result.
     } image, text; // These refer to the image and text areas of the widget.
 
     struct TextData
@@ -48,10 +60,23 @@ public:
 
 class CaptionWidget
 {
-    CWProperties& CWProps;
+private:
+
+    struct dimensions // Calculated.
+    {
+        QRect mainTextBR; // Bounding rect for both texts.
+        QRect subTextBR;
+        QSize radius;     // Distance from border to mainText.
+        int mainAndSubText;
+        int textBoxHeight;
+    } dims;
+
+public:
+    CWProperties& CWP;
 
     // Main functions.
 
+    void calculateDimensions();
     QImage loadScaledImage();
     QPixmap editImage(const QImage& image);
     QPixmap addText(const QPixmap& pixmap);
@@ -59,7 +84,7 @@ class CaptionWidget
 
     // Helpers.
 
-    void calculateBorderRadius(QSize& target, const QSize& source);
+    void calculateBorderRadius(CWProperties::DesignData& target, const QSize& source);
 
     void drawText(QPainter& painter, const CWProperties::TextData& textData,
                   const QPoint& position);
@@ -68,6 +93,6 @@ class CaptionWidget
                     const QRect& border, const QImage* const image = nullptr);
 
 public:
-    CaptionWidget(CWProperties& CWProps);
+    CaptionWidget(CWProperties& CWP);
     QLabel* getLabel();
 };

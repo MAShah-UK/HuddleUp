@@ -40,12 +40,12 @@ Chatrooms::Chatrooms(QWidget* parent)
         if (bg.isNull())
             bg.load("://Resources/Defaults/bg.jpg");
 
-        CWProps.maxScreenPercentage = 10; // TODO: Why does 10 -> 50 shrink text?
-        CWProps.imagePath           = "://Resources/Defaults/cover.jpg"; // TODO: Fix
-        CWProps.image.borderRadius  = {0, 0};
-        CWProps.text.borderRadius   = {0, 0};
-        CWProps.mainText.text       = name;
-        CWProps.subText.text        = "Here's your subtext.";
+        CWProps.size               = Qt_Gen::sizePerc(10);
+        CWProps.imagePath          = "://Resources/Defaults/cover.jpg"; // TODO: Fix
+        CWProps.image.borderRadius = {0, 0};
+        CWProps.text.borderRadius  = {0, 0};
+        CWProps.mainText.text      = name;
+        CWProps.subText.text       = "Here's your subtext.";
 
         QLabel* caption = captionWidget.getLabel();
         addToSW.append(caption);

@@ -15,26 +15,60 @@ CWProperties::CWProperties()
     subText.text = "subText";
 }
 
+void CaptionWidget::calculateDimensions()
+{
+    CWProperties::SpacingData& sD = CWP.spacing;
+
+    dims.mainAndSubText = !CWP.subText.text.isEmpty() ? sD.mainAndSubText : 0;
+    dims.mainTextBR = QFontMetrics(CWP.mainText.font).tightBoundingRect(CWP.mainText.text);
+    dims.subTextBR = QFontMetrics(CWP.subText.font).tightBoundingRect(CWP.subText.text);
+
+    // To make sure text is at an appropriate distance from the border.
+    dims.radius = CWP.text.borderRadius;
+    int minTextHeight = Math::min(dims.mainTextBR.height(), dims.subTextBR.height()) * 2;
+    dims.radius.setHeight(Math::max(dims.radius.height(), minTextHeight));
+    dims.radius.setWidth(Math::max(dims.radius.width(), minTextHeight));
+
+    dims.textBoxHeight = sD.imageText + dims.radius.height() + dims.mainTextBR.height() +
+                         sD.mainAndSubText + dims.subTextBR.height();
+}
+
 QImage CaptionWidget::loadScaledImage()
 {
+    QImage image(CWP.imagePath);
+    QSize imageSize;
 
-    Math::clamp(CWProps.maxScreenPercentage, 0, 100);
-    int maxLength = Qt_Gen::max(Qt_Gen::sizePerc(CWProps.maxScreenPercentage));
+    // Calculate required image size.
 
-    QImage image(CWProps.imagePath);
-    if (image.width() > image.height())
-        image = image.scaledToWidth(maxLength, Qt::SmoothTransformation);
-    else
-        image = image.scaledToHeight(maxLength, Qt::SmoothTransformation);
+    bool posW = CWP.size.width() > 0;
+    bool posH = CWP.size.height() > 0;
 
-    return image;
+    if (posW) imageSize.setWidth(CWP.size.width());
+
+    switch (CWP.sizeType)
+    {
+    case CWProperties::ST_Absolute :
+        if (posH) imageSize.setHeight(CWP.size.height() - dims.textBoxHeight);
+    break;
+
+    case CWProperties::ST_Image :
+         if (posH) imageSize.setHeight(CWP.size.height());
+    break;
+    }
+
+    if      (posW && posH) // Fix x and y.
+             return image.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    else if  (!posW && !posH) // Auto x and y.
+             return image;
+    else if (posW) // Fix x, Auto y.
+             return image.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+    else // Auto w, fix y.
+             return image.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
 }
 
 QPixmap CaptionWidget::editImage(const QImage& image)
 {
-    // Calculate dimensions.
-
-    calculateBorderRadius(CWProps.image.borderRadius, image.size());
+    calculateBorderRadius(CWP.image, image.size());
     QRect border(0, 0, image.width(), image.height());
 
     // Draw image portion of widget.
@@ -43,60 +77,42 @@ QPixmap CaptionWidget::editImage(const QImage& image)
     canvas.fill(QColor(0, 0, 0, 0));
 
     QPainter painter(&canvas);
-    drawBorder(painter, CWProps.image, border, &image);
+    drawBorder(painter, CWP.image, border, &image);
 
     return canvas;
 }
 
 QPixmap CaptionWidget::addText(const QPixmap& pixmap)
 {
-    // Calculate dimensions.
-
-    calculateBorderRadius(CWProps.text.borderRadius, pixmap.size());
-    QSize radius = CWProps.text.borderRadius;
-
-    int spacingMainAndSubText = 0;
-    if (!CWProps.subText.text.isEmpty()) spacingMainAndSubText = CWProps.spacingMainAndSubText;
-
-    QRect mainTextBR = QFontMetrics(CWProps.mainText.font).tightBoundingRect(CWProps.mainText.text);
-    QRect subTextBR = QFontMetrics(CWProps.subText.font).tightBoundingRect(CWProps.subText.text);
-
-    // To make sure text is at an appropriate distance from the border.
-    int minTextHeight = Math::min(mainTextBR.height(), subTextBR.height());
-    radius.setHeight(Math::max(radius.height(), minTextHeight));
-    radius.setWidth(Math::max(radius.width(), minTextHeight));
-
-    int netHeight = CWProps.spacingImageText + radius.height() + mainTextBR.height() +
-                    spacingMainAndSubText + subTextBR.height();
-
-    QRect border(0, pixmap.height() + CWProps.spacingImageText,
-                 pixmap.width(), netHeight - CWProps.spacingImageText);
+    calculateBorderRadius(CWP.text, pixmap.size());
+    QRect border(0, pixmap.height() + CWP.spacing.imageText,
+                 pixmap.width(), dims.textBoxHeight - CWP.spacing.imageText);
 
     // Draw text portion of widget.
 
-    QPixmap canvas(pixmap.width(), netHeight + pixmap.height());
+    QPixmap canvas(pixmap.width(), dims.textBoxHeight + pixmap.height());
     canvas.fill(QColor(0, 0, 0, 0)); // Default is black.
 
     QPainter painter(&canvas);
     painter.drawPixmap(0, 0, pixmap);
-    drawBorder(painter, CWProps.text, border);
+    drawBorder(painter, CWP.text, border);
 
     // Draw text.
 
-    int mainTextSpacing = pixmap.height() + CWProps.spacingImageText +
-                          radius.height()/2 + mainTextBR.height();
-    drawText(painter, CWProps.mainText, {radius.width()/2, mainTextSpacing});
+    int mainTextSpacing = pixmap.height() + CWP.spacing.imageText +
+                          dims.radius.height()/2 + dims.mainTextBR.height();
+    drawText(painter, CWP.mainText, {dims.radius.width()/2, mainTextSpacing});
 
-    int subTextSpacing = mainTextSpacing + subTextBR.height() +
-                         spacingMainAndSubText;
-    drawText(painter, CWProps.subText, {radius.width()/2, subTextSpacing});
+    int subTextSpacing = mainTextSpacing + dims.subTextBR.height() +
+                         dims.mainAndSubText;
+    drawText(painter, CWP.subText, {dims.radius.width()/2, subTextSpacing});
 
     return canvas;
 }
 
 QLabel* CaptionWidget::createLabel(const QPixmap& pixmap)
 {
-    QLabel* label = new QLabel(CWProps.parent);
+    QLabel* label = new QLabel(CWP.parent);
     label->setAlignment(Qt::AlignCenter);
     label->resize(pixmap.width(), pixmap.height());
     label->setPixmap(pixmap);
@@ -105,12 +121,16 @@ QLabel* CaptionWidget::createLabel(const QPixmap& pixmap)
     return label;
 }
 
-void CaptionWidget::calculateBorderRadius(QSize& target, const QSize& source)
+void CaptionWidget::calculateBorderRadius(CWProperties::DesignData& target,
+                                          const QSize& source)
 {
-    if (target.width() < 0 || target.height() < 0)
+    QSize& userBR = target.borderRadius;
+    QSize& _BR    = target._borderRadius;
+
+    if (userBR.width() < 0 || userBR.height() < 0)
     {
-        target.setWidth(source.width()/7); // 7 was decided arbitrarily.
-        target.setHeight(target.width()); // To get a circular border we make xy equal.
+        _BR.setWidth(source.width()/7); // 7 was decided arbitrarily.
+        _BR.setHeight(_BR.width()); // To get a circular border we make xy equal.
     }
 }
 
@@ -126,7 +146,7 @@ void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData
                                const QRect& border, const QImage* const image)
 {
     QPainterPath clipPath;
-    clipPath.addRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());
+    clipPath.addRoundedRect(border, design._borderRadius.width(), design._borderRadius.height());
 
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipPath(clipPath);
@@ -136,15 +156,16 @@ void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData
         painter.drawImage(0, 0, *image);
 
     painter.setPen(design.borderPen);
-    painter.drawRoundedRect(border, design.borderRadius.width(), design.borderRadius.height());
+    painter.drawRoundedRect(border, design._borderRadius.width(), design._borderRadius.height());
 }
 
-CaptionWidget::CaptionWidget(CWProperties& CWProps)
-    : CWProps(CWProps)
+CaptionWidget::CaptionWidget(CWProperties& CWP)
+    : CWP(CWP)
 {}
 
 QLabel* CaptionWidget::getLabel()
 {
+                     calculateDimensions();
     QImage image   = loadScaledImage();
     QPixmap pixmap = editImage(image);
     pixmap         = addText(pixmap);
