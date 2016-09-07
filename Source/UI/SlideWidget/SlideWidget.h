@@ -81,10 +81,15 @@ class SlideWidget : public QWidget
     // For linked SWs.
     QList<SlideWidget*> linkedSW;
 
-protected slots:
+private slots:
 
     void processTarget();
     void recordInputPos();
+
+signals:
+
+    void atStart();
+    void atEnd();
 
 public:
 
@@ -104,4 +109,5 @@ public:
     void setTarget(int index, int duration = 500);
     void linkSW(SlideWidget* other);
     void unlinkSW(SlideWidget* other);
+    bool isWidgetOnScreen(QWidget* target); // TODO: Test.
 };

@@ -6,11 +6,9 @@
 #include "../../Helpers/Qt_General.h"
 #include "../../Helpers/Math_General.h"
 
-CWProperties::CWProperties(QWidget* parent)
+CWProperties::CWProperties()
 {
-    this->parent = parent;
-
-    mainText.font.setPixelSize(20);
+    mainText.font.setPointSize(15);
     mainText.font.setBold(true);
     mainText.text = "mainText";
 
@@ -19,6 +17,8 @@ CWProperties::CWProperties(QWidget* parent)
 
 QImage CaptionWidget::loadScaledImage()
 {
+
+    Math::clamp(CWProps.maxScreenPercentage, 0, 100);
     int maxLength = Qt_Gen::max(Qt_Gen::sizePerc(CWProps.maxScreenPercentage));
 
     QImage image(CWProps.imagePath);
@@ -143,7 +143,7 @@ CaptionWidget::CaptionWidget(CWProperties& CWProps)
     : CWProps(CWProps)
 {}
 
-QLabel* CaptionWidget::operator()()
+QLabel* CaptionWidget::getLabel()
 {
     QImage image   = loadScaledImage();
     QPixmap pixmap = editImage(image);

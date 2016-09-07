@@ -21,7 +21,8 @@ void SlideWidget::moveWidgets()
     TWDScalingRatio = 1;
 
     // Steps in 'SW_StyleVariant Calculations.png'.
-    totalInputDisp = Math::max(totalInputDisp, dirProp(size()) - totalWidgetDistance);
+    int endDisp = dirProp(size()) - totalWidgetDistance;
+    totalInputDisp = Math::max(totalInputDisp, endDisp);
 
     // We don't want positive displacement as there will be a gap behind the first widget.
     totalInputDisp = Math::min(totalInputDisp, 0);
@@ -42,6 +43,11 @@ void SlideWidget::moveWidgets()
             SW->moveWidgets();
         }
     }
+
+    if      (totalInputDisp == 0)
+             emit atStart();
+    else if (totalInputDisp == endDisp)
+             emit atEnd();
 }
 
 void SlideWidget::resizeWidgets()
@@ -462,4 +468,14 @@ void SlideWidget::linkSW(SlideWidget* other)
 void SlideWidget::unlinkSW(SlideWidget* other)
 {
     linkedSW.removeOne(other);
+}
+
+bool SlideWidget::isWidgetOnScreen(QWidget* target)
+{
+    // TODO: Use Q_ASSERT everywhere instead of current if checks.
+    Q_ASSERT(widgets.indexOf(target) != -1);
+
+    int offset = dirProp(target->pos()) + dirProp(target->size());
+
+    return (offset > 0 && offset < dirProp(size())) ? true : false;
 }

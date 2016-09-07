@@ -42,7 +42,7 @@ public:
         QString text;
     } mainText, subText;
 
-    CWProperties(QWidget* parent = nullptr);
+    CWProperties();
 };
 
 
@@ -69,5 +69,5 @@ class CaptionWidget
 
 public:
     CaptionWidget(CWProperties& CWProps);
-    QLabel* operator()();
+    QLabel* getLabel();
 };

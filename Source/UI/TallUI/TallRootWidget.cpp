@@ -5,12 +5,14 @@
 
 #include "../SlideWidget/SlideWidget.h"
 #include "../CaptionWidget/CaptionWidget.h"
+#include "../Chatrooms/Chatrooms.h"
 
 TallRootWidget::TallRootWidget(QWidget* parent)
     : QWidget(parent)
 {
     layout = new QVBoxLayout();
     layout->setContentsMargins(0, 0, 0, 0);
+    layout->setSpacing(0);
     setLayout(layout);
     // BUG?: Calling layout->setAlignment(...) hid the widgets from setupMenuBar somehow.
 
@@ -35,7 +37,8 @@ void TallRootWidget::setupMenuBar()
 
     // Add menu icons.
 
-    CWProperties CWProps(this);
+    CWProperties CWProps;
+    CWProps.parent = this;
     CWProps.imagePath = "://Resources/Icons/MenuBar/Chats.png";
     CWProps.imagePath = "://Resources/Icons/MenuBar/Media.png";
     CWProps.imagePath = "://Resources/Icons/MenuBar/Settings.png";
@@ -44,8 +47,8 @@ void TallRootWidget::setupMenuBar()
 
     CaptionWidget captionWidget(CWProps);
 
-    slideWidget->addWidget({captionWidget(), captionWidget(),
-                            captionWidget(), captionWidget()});
+    slideWidget->addWidget({captionWidget.getLabel(), captionWidget.getLabel(),
+                            captionWidget.getLabel(), captionWidget.getLabel()});
 }
 
 void TallRootWidget::setupChatsMenu()
@@ -53,17 +56,9 @@ void TallRootWidget::setupChatsMenu()
 
     // Load chat data from files.
 
-    // Display previously connected LANs in recently connected order.
-
-    // Make CaptionWidgets scrollable.
-
-    SWProperties SWProps;
-    SWProps.isHorizontal = false;
-    SWProps.spacing = Qt_Gen::sizePerc(1).width();
-    SWProps.styleVariant = SWProperties::SV_Queue;
-
-    SlideWidget* slideWidget = new SlideWidget(this, SWProps);
-    layout->addWidget(slideWidget);
+    Chatrooms* chatrooms = new Chatrooms(); // TODO: Memory leak.
+    Qt_Gen::setBackgroundColor(chatrooms->LANsSW(), QColor(70, 70, 70));
+    layout->addWidget(chatrooms->LANsSW()); // TODO: Why aren't captions displaying?
 }
 
 void TallRootWidget::setupMediaMenu()
