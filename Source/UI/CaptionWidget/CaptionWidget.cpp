@@ -6,25 +6,16 @@
 #include "../../Helpers/Qt_General.h"
 #include "../../Helpers/Math_General.h"
 
-CWProperties::CWProperties()
-{
-    mainText.font.setPointSize(15);
-    mainText.font.setBold(true);
-    mainText.text = "mainText";
-
-    subText.text = "subText";
-}
-
 void CaptionWidget::calculateDimensions()
 {
-    CWProperties::SpacingData& sD = CWP.spacing;
+    SpacingData& sD = spacing;
 
-    dims.mainAndSubText = !CWP.subText.text.isEmpty() ? sD.mainAndSubText : 0;
-    dims.mainTextBR = QFontMetrics(CWP.mainText.font).tightBoundingRect(CWP.mainText.text);
-    dims.subTextBR = QFontMetrics(CWP.subText.font).tightBoundingRect(CWP.subText.text);
+    dims.mainAndSubText = !subText.text.isEmpty() ? sD.mainAndSubText : 0;
+    dims.mainTextBR = QFontMetrics(mainText.font).tightBoundingRect(mainText.text);
+    dims.subTextBR = QFontMetrics(subText.font).tightBoundingRect(subText.text);
 
     // To make sure text is at an appropriate distance from the border.
-    dims.radius = CWP.text.borderRadius;
+    dims.radius = text.borderRadius;
     int minTextHeight = Math::min(dims.mainTextBR.height(), dims.subTextBR.height()) * 2;
     dims.radius.setHeight(Math::max(dims.radius.height(), minTextHeight));
     dims.radius.setWidth(Math::max(dims.radius.width(), minTextHeight));
@@ -35,94 +26,79 @@ void CaptionWidget::calculateDimensions()
 
 QImage CaptionWidget::loadScaledImage()
 {
-    QImage image(CWP.imagePath);
+    QImage loadImage(imagePath);
     QSize imageSize;
 
     // Calculate required image size.
 
-    bool posW = CWP.size.width() > 0;
-    bool posH = CWP.size.height() > 0;
+    bool posW = size.width() > 0;
+    bool posH = size.height() > 0;
 
-    if (posW) imageSize.setWidth(CWP.size.width());
+    if (posW) imageSize.setWidth(size.width());
 
-    switch (CWP.sizeType)
+    switch (sizeType)
     {
-    case CWProperties::ST_Absolute :
-        if (posH) imageSize.setHeight(CWP.size.height() - dims.textBoxHeight);
+    case ST_Absolute :
+        if (posH) imageSize.setHeight(size.height() - dims.textBoxHeight);
     break;
 
-    case CWProperties::ST_Image :
-         if (posH) imageSize.setHeight(CWP.size.height());
+    case ST_Image :
+         if (posH) imageSize.setHeight(size.height());
     break;
     }
 
     if      (posW && posH) // Fix x and y.
-             return image.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+             return loadImage.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     else if  (!posW && !posH) // Auto x and y.
-             return image;
+             return loadImage;
     else if (posW) // Fix x, Auto y.
-             return image.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+             return loadImage.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
     else // Auto w, fix y.
-             return image.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
+             return loadImage.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
 }
 
-QPixmap CaptionWidget::editImage(const QImage& image)
+void CaptionWidget::editImage(const QImage& loadImage)
 {
-    calculateBorderRadius(CWP.image, image.size());
-    QRect border(0, 0, image.width(), image.height());
+    calculateBorderRadius(image, loadImage.size());
+    QSize size(loadImage.width(), loadImage.height());
 
     // Draw image portion of widget.
 
-    QPixmap canvas(image.width(), image.height());
-    canvas.fill(QColor(0, 0, 0, 0));
+    imageIM = QImage(loadImage.width(), loadImage.height(), QImage::Format_ARGB32);
+    imageIM.fill(QColor(0, 0, 0, 0));
 
-    QPainter painter(&canvas);
-    drawBorder(painter, CWP.image, border, &image);
-
-    return canvas;
+    drawBorder(imageIM, image, size, &loadImage);
 }
 
-QPixmap CaptionWidget::addText(const QPixmap& pixmap)
+void CaptionWidget::editText()
 {
-    calculateBorderRadius(CWP.text, pixmap.size());
-    QRect border(0, pixmap.height() + CWP.spacing.imageText,
-                 pixmap.width(), dims.textBoxHeight - CWP.spacing.imageText);
+    const QSize& PMSize = imageIM.size();
+    calculateBorderRadius(text, PMSize);
+    QSize size(PMSize.width(), dims.textBoxHeight);
 
     // Draw text portion of widget.
 
-    QPixmap canvas(pixmap.width(), dims.textBoxHeight + pixmap.height());
-    canvas.fill(QColor(0, 0, 0, 0)); // Default is black.
-
-    QPainter painter(&canvas);
-    painter.drawPixmap(0, 0, pixmap);
-    drawBorder(painter, CWP.text, border);
+    drawBorder(textIM, text, size);
 
     // Draw text.
 
-    int mainTextSpacing = pixmap.height() + CWP.spacing.imageText +
-                          dims.radius.height()/2 + dims.mainTextBR.height();
-    drawText(painter, CWP.mainText, {dims.radius.width()/2, mainTextSpacing});
+    int mainTextSpacing = dims.radius.height()/2 + dims.mainTextBR.height();
+    drawText(mainText, {dims.radius.width()/2, mainTextSpacing});
 
     int subTextSpacing = mainTextSpacing + dims.subTextBR.height() +
                          dims.mainAndSubText;
-    drawText(painter, CWP.subText, {dims.radius.width()/2, subTextSpacing});
-
-    return canvas;
+    drawText(subText, {dims.radius.width()/2, subTextSpacing});
 }
 
-QLabel* CaptionWidget::createLabel(const QPixmap& pixmap)
+void CaptionWidget::createLabel()
 {
-    QLabel* label = new QLabel(CWP.parent);
-    label->setAlignment(Qt::AlignCenter);
-    label->resize(pixmap.width(), pixmap.height());
-    label->setPixmap(pixmap);
-    label->setScaledContents(true);
-
-    return label;
+    setAlignment(Qt::AlignCenter);
+    resize(imageIM.width(), imageIM.height());
+    setPixmap(QPixmap::fromImage(textIM));
+    setScaledContents(true);
 }
 
-void CaptionWidget::calculateBorderRadius(CWProperties::DesignData& target,
-                                          const QSize& source)
+void CaptionWidget::calculateBorderRadius(DesignData& target, const QSize& source)
 {
     QSize& userBR = target.borderRadius;
     QSize& _BR    = target._borderRadius;
@@ -134,42 +110,52 @@ void CaptionWidget::calculateBorderRadius(CWProperties::DesignData& target,
     }
 }
 
-void CaptionWidget::drawText(QPainter& painter, const CWProperties::TextData& textData,
-                             const QPoint& position)
+void CaptionWidget::drawText(const TextData& textData, const QPoint& position)
 {
+    QPainter painter(&textIM);
+
     painter.setFont(textData.font);
     painter.setPen(textData.color);
     painter.drawText(position, textData.text);
 }
 
-void CaptionWidget::drawBorder(QPainter& painter, const CWProperties::DesignData& design,
-                               const QRect& border, const QImage* const image)
+void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
+                               const QSize& size, const QImage* const image)
 {
-    QPainterPath clipPath;
-    clipPath.addRoundedRect(border, design._borderRadius.width(), design._borderRadius.height());
+    target = QImage(size, QImage::Format_ARGB32);
+    target.fill(QColor(0, 0, 0, 0)); // Default is black.
 
+    QPainterPath clipPath;
+    clipPath.addRoundedRect({QPoint(), size},
+                            design._borderRadius.width(), design._borderRadius.height());
+
+    QPainter painter(&target);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setClipPath(clipPath);
-    painter.fillRect(border, design.bgColor);
+    painter.fillRect(QRect(QPoint(), size), design.bgColor);
 
     if (image)
         painter.drawImage(0, 0, *image);
 
     painter.setPen(design.borderPen);
-    painter.drawRoundedRect(border, design._borderRadius.width(), design._borderRadius.height());
+    painter.drawRoundedRect(QRect(QPoint(), size),
+                            design._borderRadius.width(), design._borderRadius.height());
 }
 
-CaptionWidget::CaptionWidget(CWProperties& CWP)
-    : CWP(CWP)
-{}
-
-QLabel* CaptionWidget::getLabel()
+CaptionWidget::CaptionWidget(QWidget* parent)
+    : QLabel(parent)
 {
-                     calculateDimensions();
-    QImage image   = loadScaledImage();
-    QPixmap pixmap = editImage(image);
-    pixmap         = addText(pixmap);
-    QLabel* label  = createLabel(pixmap);
+    mainText.font.setPointSize(15);
+    mainText.font.setBold(true);
+    mainText.text = "mainText";
 
-    return label;
+    subText.text = "subText";
+}
+
+void CaptionWidget::setup()
+{
+    calculateDimensions();
+    editImage(loadScaledImage());
+    editText();
+    createLabel();
 }

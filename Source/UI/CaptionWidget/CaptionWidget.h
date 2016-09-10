@@ -17,11 +17,24 @@
  * This class requires a valid reference to CWProperties to function.
  */
 
-class CWProperties
-{   
+class CaptionWidget : public QLabel
+{
+private:
+
+    struct dimensions // Calculated.
+    {
+        QRect mainTextBR; // Bounding rect for both texts.
+        QRect subTextBR;
+        QSize radius;     // Distance from border to mainText.
+        int mainAndSubText;
+        int textBoxHeight;
+    } dims;
+
+    QImage imageIM;
+    QImage textIM;
+
 public:
 
-    QWidget* parent;
     QString imagePath;
 
     enum ESizeType
@@ -29,7 +42,7 @@ public:
         ST_Absolute, // Total size will be set size.
         ST_Image     // Image will be at set size.
     } sizeType = ST_Absolute;
-    QSize size = {250, 250}; // The enum applies to the negative values here.
+    QSize size = {-1, -1}; // The enum applies to the negative values here.
 
     struct SpacingData
     {
@@ -54,45 +67,24 @@ public:
         QString text;
     } mainText, subText;
 
-    CWProperties();
-};
-
-
-class CaptionWidget
-{
-private:
-
-    struct dimensions // Calculated.
-    {
-        QRect mainTextBR; // Bounding rect for both texts.
-        QRect subTextBR;
-        QSize radius;     // Distance from border to mainText.
-        int mainAndSubText;
-        int textBoxHeight;
-    } dims;
-
-public:
-    CWProperties& CWP;
-
     // Main functions.
 
     void calculateDimensions();
     QImage loadScaledImage();
-    QPixmap editImage(const QImage& image);
-    QPixmap addText(const QPixmap& pixmap);
-    QLabel* createLabel(const QPixmap& pixmap);
+    void editImage(const QImage& image);
+    void editText();
+    void createLabel();
 
     // Helpers.
 
-    void calculateBorderRadius(CWProperties::DesignData& target, const QSize& source);
+    void calculateBorderRadius(DesignData& target, const QSize& source);
 
-    void drawText(QPainter& painter, const CWProperties::TextData& textData,
-                  const QPoint& position);
+    void drawText(const TextData& textData, const QPoint& position);
 
-    void drawBorder(QPainter& painter, const CWProperties::DesignData& design,
-                    const QRect& border, const QImage* const image = nullptr);
+    void drawBorder(QImage& target, const DesignData& design,
+                    const QSize& size, const QImage* const image = nullptr);
 
 public:
-    CaptionWidget(CWProperties& CWP);
-    QLabel* getLabel();
+    CaptionWidget(QWidget* parent = nullptr);
+    void setup();
 };

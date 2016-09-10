@@ -56,6 +56,8 @@ void SlideWidget::resizeWidgets()
 
     for (QWidget* widget : widgets)
     {
+        updateInitWidgetSize(widget);
+
         const QSize& widgetDim = widget->size();
         QSize OwidgetDim  = initialWidgetsSize[widgets.indexOf(widget)];
 
@@ -78,6 +80,8 @@ void SlideWidget::resizeWidgets()
             OwidgetDim *= scaleFactor;
             widget->resize(OwidgetDim);
         }
+
+        setWidgetsSize[widgets.indexOf(widget)] = OwidgetDim;
     }
 
     // Attempt to reposition based on window scale factor.
@@ -335,6 +339,8 @@ void SlideWidget::addWidget(QList<QWidget*> newWidgets, bool placeAfter, QWidget
         newWidget->setParent(this);
     }
 
+    setWidgetsSize = initialWidgetsSize;
+
     resizeWidgets();
 }
 
@@ -376,10 +382,14 @@ void SlideWidget::clearWidgets(bool shouldDelete)
     initialWidgetsSize.clear();
 }
 
-void SlideWidget::setWidgetSize(QWidget* widget, const QSize& widgetSize)
+// Checks to see if the widget's size is what SW set it to.
+// If not then the user must have updated the required size.
+void SlideWidget::updateInitWidgetSize(QWidget* target)
 {
-    widget->resize(widgetSize);
-    initialWidgetsSize[widgets.indexOf(widget)] = widgetSize;
+    QSize& initWS = initialWidgetsSize[widgets.indexOf(target)];
+    QSize& setWS  = setWidgetsSize[widgets.indexOf(target)];
+
+    if (setWS != target->size()) setWS = initWS = target->size();
 }
 
 SWProperties SlideWidget::properties()

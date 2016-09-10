@@ -12,13 +12,9 @@ Chatrooms::Chatrooms(QWidget* parent)
 {
     SWProperties SWProps;
     SWProps.isHorizontal = false;
-    SWProps.spacing      = Qt_Gen::sizePerc(1).width();
+    SWProps.spacing      = Qt_Gen::sizePerc(0.5).width();
     SWProps.styleVariant = SWProperties::SV_Queue;
     _LANsSW              = new SlideWidget(parent, SWProps);
-
-    CWProperties CWProps;
-    CWProps.parent = _LANsSW;
-    CaptionWidget captionWidget(CWProps);
 
     QDir dir("Chatrooms");
     QFlags<QDir::Filter> dirFilter = QDir::NoDotAndDotDot | QDir::AllDirs;
@@ -34,24 +30,25 @@ Chatrooms::Chatrooms(QWidget* parent)
 
         QImage cover(fi.fileName() + "/cover.jpg"); // TODO: Make extension independant.
         if (cover.isNull())
-            cover.load("://Resources/Defaults/cover.jpg");
+            cover.load(":/Resources/Defaults/cover.jpg");
 
         QImage bg(fi.fileName() + "/bg.jpg");
         if (bg.isNull())
-            bg.load("://Resources/Defaults/bg.jpg");
+            bg.load(":/Resources/Defaults/bg.jpg");
 
-        CWProps.size               = Qt_Gen::sizePerc(10);
-        CWProps.imagePath          = "://Resources/Defaults/cover.jpg"; // TODO: Fix
-        CWProps.image.borderRadius = {0, 0};
-        CWProps.text.borderRadius  = {0, 0};
-        CWProps.mainText.text      = name;
-        CWProps.subText.text       = "Here's your subtext.";
+        CaptionWidget* cw      = new CaptionWidget(_LANsSW);
+        cw->size               = Qt_Gen::sizePerc(10);
+        cw->imagePath          = ":/Resources/Defaults/cover.jpg"; // TODO: Fix.
+        cw->image.borderRadius = {0, 0};
+        cw->text.borderRadius  = {0, 0};
+        cw->mainText.text      = name;
+        cw->subText.text       = "Here's your subtext.";
+        cw->setup();
 
-        QLabel* caption = captionWidget.getLabel();
-        addToSW.append(caption);
+        addToSW.append(cw);
 
         LANs.append( {true, name, dt.toString("hh:mm"), dt.toString("ddd dd/mm/yy"),
-                      cover, bg, caption} );
+                      cover, bg, cw} );
     }
 
     _LANsSW->addWidget(addToSW);

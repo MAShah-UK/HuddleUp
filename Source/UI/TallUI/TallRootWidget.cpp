@@ -14,7 +14,6 @@ TallRootWidget::TallRootWidget(QWidget* parent)
     layout->setContentsMargins(0, 0, 0, 0);
     layout->setSpacing(0);
     setLayout(layout);
-    // BUG?: Calling layout->setAlignment(...) hid the widgets from setupMenuBar somehow.
 
     setupMenuBar();
     setupChatsMenu();
@@ -37,18 +36,20 @@ void TallRootWidget::setupMenuBar()
 
     // Add menu icons.
 
-    CWProperties CWProps;
-    CWProps.parent = this;
-    CWProps.imagePath = "://Resources/Icons/MenuBar/Chats.png";
-    CWProps.imagePath = "://Resources/Icons/MenuBar/Media.png";
-    CWProps.imagePath = "://Resources/Icons/MenuBar/Settings.png";
-    CWProps.imagePath = "://Resources/Icons/MenuBar/Search.png";
-    CWProps.imagePath = "://Resources/Icons/MenuBar/stuff.png";
+    //CWProperties CWProps;
+    //CWProps.parent = this;
+    //CWProps.imagePath = "://Resources/Icons/MenuBar/Chats.png";
+    //CWProps.imagePath = "://Resources/Icons/MenuBar/Media.png";
+    //CWProps.imagePath = "://Resources/Icons/MenuBar/Settings.png";
+    //CWProps.imagePath = "://Resources/Icons/MenuBar/Search.png";
+    //CWProps.imagePath = "://Resources/Icons/MenuBar/stuff.png";
 
-    CaptionWidget captionWidget(CWProps);
+    //CaptionWidget captionWidget(CWProps);
 
-    slideWidget->addWidget({captionWidget.getLabel(), captionWidget.getLabel(),
-                            captionWidget.getLabel(), captionWidget.getLabel()});
+    //CaptionWidget captionWidget(this);
+
+    //slideWidget->addWidget({captionWidget.getLabel(), captionWidget.getLabel(),
+    //                        captionWidget.getLabel(), captionWidget.getLabel()});
 }
 
 void TallRootWidget::setupChatsMenu()
@@ -58,7 +59,7 @@ void TallRootWidget::setupChatsMenu()
 
     Chatrooms* chatrooms = new Chatrooms(); // TODO: Memory leak.
     Qt_Gen::setBackgroundColor(chatrooms->LANsSW(), QColor(70, 70, 70));
-    layout->addWidget(chatrooms->LANsSW()); // TODO: Why aren't captions displaying?
+    layout->addWidget(chatrooms->LANsSW());
 }
 
 void TallRootWidget::setupMediaMenu()

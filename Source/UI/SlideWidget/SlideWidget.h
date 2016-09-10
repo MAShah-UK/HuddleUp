@@ -46,6 +46,9 @@ class SlideWidget : public QWidget
     QList<QSize> initialWidgetsSize;
     SWProperties SWProps;
 
+    void updateInitWidgetSize(QWidget* target);
+    QList<QSize> setWidgetsSize;
+
     void setStyleVariant(SWProperties::StyleVariants sVar);
 
     void moveWidgets();
@@ -101,13 +104,12 @@ public:
     void addWidget(QWidget* newWidget, bool placeAfter = true, QWidget* target = nullptr);
     void removeWidget(QWidget* target = nullptr, bool shouldDelete = true);
     void clearWidgets(bool shouldDelete = true);
-    void setWidgetSize(QWidget* widget, const QSize& widgetSize);
     SWProperties properties();
     void properties(const SWProperties& props);
     void setTarget(double displacement, int duration = 500);
     void setTarget(QWidget* target, int duration = 500);
     void setTarget(int index, int duration = 500);
-    void linkSW(SlideWidget* other);
+    void linkSW(SlideWidget* other);    // TODO: Test linking.
     void unlinkSW(SlideWidget* other);
-    bool isWidgetOnScreen(QWidget* target); // TODO: Test.
+    bool isWidgetOnScreen(QWidget* target);
 };
