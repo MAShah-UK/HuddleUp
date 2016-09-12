@@ -37,7 +37,7 @@ Chatrooms::Chatrooms(QWidget* parent)
             bg.load(":/Resources/Defaults/bg.jpg");
 
         CaptionWidget* cw      = new CaptionWidget(_LANsSW);
-        cw->size               = Qt_Gen::sizePerc(10);
+        cw->targetSize               = Qt_Gen::sizePerc(10);
         cw->imagePath          = ":/Resources/Defaults/cover.jpg"; // TODO: Fix.
         cw->image.borderRadius = {0, 0};
         cw->text.borderRadius  = {0, 0};

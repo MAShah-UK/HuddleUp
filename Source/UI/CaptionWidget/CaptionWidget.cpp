@@ -2,26 +2,28 @@
 
 #include <QPainter>
 #include <QDebug>
+#include <QResizeEvent>
+#include <QVBoxLayout>
 
 #include "../../Helpers/Qt_General.h"
 #include "../../Helpers/Math_General.h"
 
 void CaptionWidget::calculateDimensions()
 {
-    SpacingData& sD = spacing;
-
-    dims.mainAndSubText = !subText.text.isEmpty() ? sD.mainAndSubText : 0;
+    dims.mainAndSubText = !subText.text.isEmpty() ? spacing.mainAndSubText : 0;
     dims.mainTextBR = QFontMetrics(mainText.font).tightBoundingRect(mainText.text);
     dims.subTextBR = QFontMetrics(subText.font).tightBoundingRect(subText.text);
 
     // To make sure text is at an appropriate distance from the border.
     dims.radius = text.borderRadius;
-    int minTextHeight = Math::min(dims.mainTextBR.height(), dims.subTextBR.height()) * 2;
-    dims.radius.setHeight(Math::max(dims.radius.height(), minTextHeight));
-    dims.radius.setWidth(Math::max(dims.radius.width(), minTextHeight));
 
-    dims.textBoxHeight = sD.imageText + dims.radius.height() + dims.mainTextBR.height() +
-                         sD.mainAndSubText + dims.subTextBR.height();
+    int textHeight = Math::max(dims.mainTextBR.height(), dims.subTextBR.height()) / 1.5;
+
+    dims.radius.setHeight(Math::max(dims.radius.height(), textHeight));
+    dims.radius.setWidth(Math::max(dims.radius.width(), textHeight));
+
+    dims.textBoxHeight = dims.radius.height()*2 + dims.mainTextBR.height() +
+                         spacing.mainAndSubText + dims.subTextBR.height();
 }
 
 QImage CaptionWidget::loadScaledImage()
@@ -31,22 +33,23 @@ QImage CaptionWidget::loadScaledImage()
 
     // Calculate required image size.
 
-    bool posW = size.width() > 0;
-    bool posH = size.height() > 0;
+    bool posW = targetSize.width() > 0;
+    bool posH = targetSize.height() > 0;
 
-    if (posW) imageSize.setWidth(size.width());
+    if (posW) imageSize.setWidth(targetSize.width());
 
     switch (sizeType)
     {
     case ST_Absolute :
-        if (posH) imageSize.setHeight(size.height() - dims.textBoxHeight);
+        if (posH) imageSize.setHeight(targetSize.height() - dims.textBoxHeight);
     break;
 
     case ST_Image :
-         if (posH) imageSize.setHeight(size.height());
+         if (posH) imageSize.setHeight(targetSize.height());
     break;
     }
 
+    // TODO: Fix logic here, non square images will scale wierdly.
     if      (posW && posH) // Fix x and y.
              return loadImage.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
     else if  (!posW && !posH) // Auto x and y.
@@ -82,20 +85,28 @@ void CaptionWidget::editText()
 
     // Draw text.
 
-    int mainTextSpacing = dims.radius.height()/2 + dims.mainTextBR.height();
-    drawText(mainText, {dims.radius.width()/2, mainTextSpacing});
+    int mainTextSpacing = dims.radius.height() + dims.mainTextBR.height();
+    drawText(mainText, {dims.radius.width(), mainTextSpacing});
 
     int subTextSpacing = mainTextSpacing + dims.subTextBR.height() +
                          dims.mainAndSubText;
-    drawText(subText, {dims.radius.width()/2, subTextSpacing});
+    drawText(subText, {dims.radius.width(), subTextSpacing});
 }
 
-void CaptionWidget::createLabel()
+void CaptionWidget::sortLabels()
 {
-    setAlignment(Qt::AlignCenter);
-    resize(imageIM.width(), imageIM.height());
-    setPixmap(QPixmap::fromImage(textIM));
-    setScaledContents(true);
+    imageL = setLabel(new QLabel, &imageIM, imageIM.size());
+    textL  = setLabel(new QLabel, &textIM, textIM.size());
+    setLabel(this, nullptr, {imageL->width(),
+                imageL->height() + textL->height() + spacing.imageText});
+
+    QVBoxLayout* layout = new QVBoxLayout(this);
+    layout->setSpacing(0);
+    layout->setContentsMargins(0, 0, 0, 0);
+    layout->addWidget(imageL);
+    layout->addSpacing(spacing.imageText);
+    layout->addWidget(textL);
+    setLayout(layout);
 }
 
 void CaptionWidget::calculateBorderRadius(DesignData& target, const QSize& source)
@@ -117,6 +128,16 @@ void CaptionWidget::drawText(const TextData& textData, const QPoint& position)
     painter.setFont(textData.font);
     painter.setPen(textData.color);
     painter.drawText(position, textData.text);
+}
+
+QLabel* CaptionWidget::setLabel(QLabel* label, const QImage* const image, const QSize& size)
+{
+    if (image) label->setPixmap(QPixmap::fromImage(*image));
+    label->setAlignment(Qt::AlignCenter);
+    label->resize(size);
+    label->setScaledContents(true);
+
+    return label;
 }
 
 void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
@@ -142,6 +163,11 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
                             design._borderRadius.width(), design._borderRadius.height());
 }
 
+void CaptionWidget::resizeEvent(QResizeEvent* re)
+{
+    // TODO: Text must scale seperate to image.
+}
+
 CaptionWidget::CaptionWidget(QWidget* parent)
     : QLabel(parent)
 {
@@ -157,5 +183,5 @@ void CaptionWidget::setup()
     calculateDimensions();
     editImage(loadScaledImage());
     editText();
-    createLabel();
+    sortLabels();
 }

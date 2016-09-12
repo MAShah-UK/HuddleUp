@@ -33,6 +33,9 @@ private:
     QImage imageIM;
     QImage textIM;
 
+    QLabel* imageL;
+    QLabel* textL;
+
 public:
 
     QString imagePath;
@@ -42,7 +45,7 @@ public:
         ST_Absolute, // Total size will be set size.
         ST_Image     // Image will be at set size.
     } sizeType = ST_Absolute;
-    QSize size = {-1, -1}; // The enum applies to the negative values here.
+    QSize targetSize = {-1, -1}; // The enum applies to the negative values here.
 
     struct SpacingData
     {
@@ -73,16 +76,20 @@ public:
     QImage loadScaledImage();
     void editImage(const QImage& image);
     void editText();
-    void createLabel();
+    void sortLabels();
 
     // Helpers.
 
     void calculateBorderRadius(DesignData& target, const QSize& source);
-
     void drawText(const TextData& textData, const QPoint& position);
+    QLabel* setLabel(QLabel* label, const QImage* const image, const QSize& size);
 
     void drawBorder(QImage& target, const DesignData& design,
-                    const QSize& size, const QImage* const image = nullptr);
+                    const QSize& targetSize, const QImage* const image = nullptr);
+
+    // Events
+
+    void resizeEvent(QResizeEvent* re) override;
 
 public:
     CaptionWidget(QWidget* parent = nullptr);
