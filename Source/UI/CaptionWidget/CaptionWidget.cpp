@@ -165,7 +165,15 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
 
 void CaptionWidget::resizeEvent(QResizeEvent* re)
 {
-    // TODO: Text must scale seperate to image.
+    /* TODO: Text must scale seperate to image.
+     * - Text aspect ratio is getting distorted.
+     * - Image aspect ratio is getting distorted?
+     */
+
+    const QSize& newS = re->size();
+
+    imageL->resize({newS.width(), newS.height() - dims.textBoxHeight});
+    textL->resize({newS.width(), dims.textBoxHeight});
 }
 
 CaptionWidget::CaptionWidget(QWidget* parent)
