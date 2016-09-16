@@ -11,10 +11,9 @@
  * instance via the constructor. Use the () operator to output a label.
  *
  * An image path and mainText must be provided.
- * maxScreenPercentage and parent should be carefuelly considered.
+ * setup() must be called to visually update any changes.
  * subText is optional as are the styling and spacing options.
  *
- * This class requires a valid reference to CWProperties to function.
  */
 
 class CaptionWidget : public QLabel
@@ -30,6 +29,7 @@ private:
         int textBoxHeight;
     } dims;
 
+    QImage loadedImage;
     QImage imageIM;
     QImage textIM;
 
@@ -46,6 +46,12 @@ public:
         ST_Image     // Image will be at set size.
     } sizeType = ST_Absolute;
     QSize targetSize = {-1, -1}; // The enum applies to the negative values here.
+
+    enum EImageSizeResponse
+    {
+        ISR_Zoom,
+        ISR_Scale
+    } imageSR = ISR_Zoom;
 
     struct SpacingData
     {
@@ -73,8 +79,8 @@ public:
     // Main functions.
 
     void calculateDimensions();
-    QImage loadScaledImage();
-    void editImage(const QImage& image);
+    void loadScaledImage();
+    void editImage(const QSize& size);
     void editText();
     void sortLabels();
 
@@ -83,6 +89,7 @@ public:
     void calculateBorderRadius(DesignData& target, const QSize& source);
     void drawText(const TextData& textData, const QPoint& position);
     QLabel* setLabel(QLabel* label, const QImage* const image, const QSize& size);
+    void updateLabels();
 
     void drawBorder(QImage& target, const DesignData& design,
                     const QSize& targetSize, const QImage* const image = nullptr);

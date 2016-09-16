@@ -26,9 +26,9 @@ void CaptionWidget::calculateDimensions()
                          spacing.mainAndSubText + dims.subTextBR.height();
 }
 
-QImage CaptionWidget::loadScaledImage()
+void CaptionWidget::loadScaledImage()
 {
-    QImage loadImage(imagePath);
+    loadedImage = QImage(imagePath);
     QSize imageSize;
 
     // Calculate required image size.
@@ -51,26 +51,28 @@ QImage CaptionWidget::loadScaledImage()
 
     // TODO: Fix logic here, non square images will scale wierdly.
     if      (posW && posH) // Fix x and y.
-             return loadImage.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    else if  (!posW && !posH) // Auto x and y.
-             return loadImage;
+             loadedImage = loadedImage.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+
+    else if (!posW && !posH) // Auto x and y.
+             ; // Do nothing.
+
     else if (posW) // Fix x, Auto y.
-             return loadImage.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+             loadedImage = loadedImage.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+
     else // Auto w, fix y.
-             return loadImage.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
+             loadedImage = loadedImage.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
 }
 
-void CaptionWidget::editImage(const QImage& loadImage)
+void CaptionWidget::editImage(const QSize& size)
 {
-    calculateBorderRadius(image, loadImage.size());
-    QSize size(loadImage.width(), loadImage.height());
+    calculateBorderRadius(image, size);
 
     // Draw image portion of widget.
 
-    imageIM = QImage(loadImage.width(), loadImage.height(), QImage::Format_ARGB32);
+    imageIM = QImage(size, QImage::Format_ARGB32);
     imageIM.fill(QColor(0, 0, 0, 0));
 
-    drawBorder(imageIM, image, size, &loadImage);
+    drawBorder(imageIM, image, size, &loadedImage);
 }
 
 void CaptionWidget::editText()
@@ -95,11 +97,6 @@ void CaptionWidget::editText()
 
 void CaptionWidget::sortLabels()
 {
-    imageL = setLabel(new QLabel, &imageIM, imageIM.size());
-    textL  = setLabel(new QLabel, &textIM, textIM.size());
-    setLabel(this, nullptr, {imageL->width(),
-                imageL->height() + textL->height() + spacing.imageText});
-
     QVBoxLayout* layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0, 0, 0, 0);
@@ -125,6 +122,7 @@ void CaptionWidget::drawText(const TextData& textData, const QPoint& position)
 {
     QPainter painter(&textIM);
 
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
     painter.setFont(textData.font);
     painter.setPen(textData.color);
     painter.drawText(position, textData.text);
@@ -140,6 +138,14 @@ QLabel* CaptionWidget::setLabel(QLabel* label, const QImage* const image, const 
     return label;
 }
 
+void CaptionWidget::updateLabels()
+{
+    setLabel(imageL, &imageIM, imageIM.size());
+    setLabel(textL, &textIM, textIM.size());
+    setLabel(this, nullptr, {imageL->width(),
+                imageL->height() + textL->height() + spacing.imageText});
+}
+
 void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
                                const QSize& size, const QImage* const image)
 {
@@ -151,12 +157,24 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
                             design._borderRadius.width(), design._borderRadius.height());
 
     QPainter painter(&target);
-    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform);
     painter.setClipPath(clipPath);
     painter.fillRect(QRect(QPoint(), size), design.bgColor);
 
     if (image)
-        painter.drawImage(0, 0, *image);
+    {
+        QRect rect;
+
+        if (imageSR == ISR_Zoom)
+            rect = {(size.width()  - image->size().width())  / 2,
+                    (size.height() - image->size().height()) / 2,
+                     image->size().width(), image->size().height()};
+
+        else // ISR_Scale
+            rect = {QPoint(), size};
+
+        painter.drawImage(rect, *image);
+    }
 
     painter.setPen(design.borderPen);
     painter.drawRoundedRect(QRect(QPoint(), size),
@@ -165,15 +183,15 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
 
 void CaptionWidget::resizeEvent(QResizeEvent* re)
 {
-    /* TODO: Text must scale seperate to image.
-     * - Text aspect ratio is getting distorted.
-     * - Image aspect ratio is getting distorted?
-     */
+    const QSize& newS   = re->size();
+    const QSize& imageS = {newS.width(), newS.height() - dims.textBoxHeight - spacing.imageText};
+    const QSize& textS  = {newS.width(), dims.textBoxHeight};
 
-    const QSize& newS = re->size();
+    editImage(imageS);
+    setLabel(imageL, &imageIM, imageS);
 
-    imageL->resize({newS.width(), newS.height() - dims.textBoxHeight});
-    textL->resize({newS.width(), dims.textBoxHeight});
+    editText();
+    setLabel(textL, &textIM, textS);
 }
 
 CaptionWidget::CaptionWidget(QWidget* parent)
@@ -184,12 +202,17 @@ CaptionWidget::CaptionWidget(QWidget* parent)
     mainText.text = "mainText";
 
     subText.text = "subText";
+
+    imageL = new QLabel;
+    textL  = new QLabel;
+    sortLabels();
 }
 
 void CaptionWidget::setup()
 {
     calculateDimensions();
-    editImage(loadScaledImage());
+    loadScaledImage();
+    editImage(loadedImage.size());
     editText();
-    sortLabels();
+    updateLabels();
 }

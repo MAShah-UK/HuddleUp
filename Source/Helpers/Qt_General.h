@@ -1,5 +1,8 @@
 #pragma once
 
+#include <QElapsedTimer>
+#include <QTime>
+
 class QSize;
 class QPoint;
 class QPointF;
@@ -17,6 +20,7 @@ namespace Qt_Gen
 void setBackgroundColor(QWidget* widget, const QColor& color);
 int min(const QSize& size);
 int max(const QSize& size);
+int random(int low, int high, int seed = QTime::currentTime().msec());
 
 QSize sizePerc(double percentage);
 QSize sizePerc(double percentage, const QSize& ofSize);
@@ -40,5 +44,16 @@ public:
     int operator()    (const QPoint&  val);
     double operator() (const QPointF& val);
 };
+
+class DebugTimer
+{
+    static QElapsedTimer timer;
+public:
+    static void tick();
+    static void tock();
+};
+
+void tick();
+void tock();
 
 }

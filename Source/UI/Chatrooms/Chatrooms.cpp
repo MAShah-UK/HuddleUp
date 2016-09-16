@@ -28,17 +28,17 @@ Chatrooms::Chatrooms(QWidget* parent)
         QString name = fi.fileName();
         QDateTime dt = fi.lastModified();
 
-        QImage cover(fi.fileName() + "/cover.jpg"); // TODO: Make extension independant.
+        QImage cover(fi.fileName() + "/Cover.jpg"); // TODO: Make extension independant.
         if (cover.isNull())
-            cover.load(":/Resources/Defaults/cover.jpg");
+            cover.load(":/Resources/Defaults/Cover.jpg");
 
         QImage bg(fi.fileName() + "/bg.jpg");
         if (bg.isNull())
-            bg.load(":/Resources/Defaults/bg.jpg");
+            bg.load(":/Resources/Defaults/Backgound.jpg");
 
         CaptionWidget* cw      = new CaptionWidget(_LANsSW);
-        cw->targetSize         = Qt_Gen::sizePerc(20); // TODO: Random value for testing.
-        cw->imagePath          = ":/Resources/Defaults/cover.jpg"; // TODO: Fix.
+        cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
+        cw->imagePath          = ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
         cw->image.borderRadius = {0, 0};
         cw->text.borderRadius  = {0, 0};
         cw->mainText.text      = name;

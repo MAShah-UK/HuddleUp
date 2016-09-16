@@ -28,6 +28,17 @@ int Qt_Gen::max(const QSize& size)
     return size.width() > size.height() ? size.width() : size.height();
 }
 
+int Qt_Gen::random(int low, int high, int seed)
+{
+    /* This function will return the same value if the low, high, and seed
+     * values are unchanged between calls. This is likely to happen when
+     * the function is called within the same milisecond in realtime.
+     */
+
+    qsrand(seed);
+    return (qrand() % (high - low + 1)) + low;
+}
+
 QSize Qt_Gen::sizePerc(double percentage)
 {
     static QSize maxSize = QSize(0, 0);
@@ -92,3 +103,18 @@ double Qt_Gen::DirectionalProperties::operator() (const QPointF& val)
 {
     return isHorizontal ? val.x() : val.y();
 }
+
+QElapsedTimer Qt_Gen::DebugTimer::timer;
+
+void Qt_Gen::DebugTimer::tick()
+{
+    timer.start();
+}
+
+void Qt_Gen::DebugTimer::tock()
+{
+    qDebug() << "Time elapsed: " << timer.elapsed() << " ms.";
+}
+
+void Qt_Gen::tick() { DebugTimer::tick(); }
+void Qt_Gen::tock() { DebugTimer::tock(); }

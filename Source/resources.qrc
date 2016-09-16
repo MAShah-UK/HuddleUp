@@ -5,7 +5,7 @@
         <file>Resources/Icons/MenuBar/Search.png</file>
         <file>Resources/Icons/MenuBar/Settings.png</file>
         <file>Resources/Icons/MenuBar/stuff.png</file>
-        <file>Resources/Defaults/cover.jpg</file>
-        <file>Resources/Defaults/bg.jpg</file>
+        <file>Resources/Defaults/Background.jpg</file>
+        <file>Resources/Defaults/Cover.jpg</file>
     </qresource>
 </RCC>
