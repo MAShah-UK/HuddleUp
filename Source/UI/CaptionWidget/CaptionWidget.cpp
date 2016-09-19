@@ -39,7 +39,7 @@ void CaptionWidget::loadScaledImage()
     switch (sizeType)
     {
     case ST_Absolute :
-        if (posH) imageSize.setHeight(targetSize.height() - dims.textBoxHeight);
+        if (posH) imageSize.setHeight(targetSize.height() - dims.textBoxHeight - spacing.imageText);
     break;
 
     case ST_Image :
@@ -50,16 +50,17 @@ void CaptionWidget::loadScaledImage()
     if (!loadedImage.load(imagePath))
     {
         loadedImage = QImage({200, 200}, QImage::Format_ARGB32);
-        loadedImage.fill(QColor(225, 225, 255));
+        loadedImage.fill(image.bgColor);
 
         QPainter painter(&loadedImage);
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+        painter.setPen(mainText.color);
 
-        QFont font;
+        QFont font(mainText.font);
         font.setBold(true);
         font.setPixelSize(200);
         painter.setFont(font);
 
-        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
         painter.drawText(QRect(QPoint(), QSize{200, 200}), "?", QTextOption(Qt::AlignCenter));
 
         imageSR = ISR_Scale;
@@ -117,10 +118,9 @@ void CaptionWidget::editText()
 void CaptionWidget::sortLabels()
 {
     QVBoxLayout* layout = new QVBoxLayout(this);
-    layout->setSpacing(0);
+    layout->setSpacing(spacing.imageText);
     layout->setContentsMargins(0, 0, 0, 0);
     layout->addWidget(imageL);
-    layout->addSpacing(spacing.imageText);
     layout->addWidget(textL);
     setLayout(layout);
 }
@@ -135,6 +135,9 @@ void CaptionWidget::calculateBorderRadius(DesignData& target, const QSize& sourc
         _BR.setWidth(source.width()/7); // 7 was decided arbitrarily.
         _BR.setHeight(_BR.width()); // To get a circular border we make xy equal.
     }
+
+    else
+        _BR = userBR;
 }
 
 void CaptionWidget::drawText(const TextData& textData, const QPoint& position)
@@ -163,6 +166,8 @@ void CaptionWidget::updateLabels()
     setLabel(textL, &textIM, textIM.size());
     setLabel(this, nullptr, {imageL->width(),
                 imageL->height() + textL->height() + spacing.imageText});
+
+    layout()->setSpacing(spacing.imageText);
 }
 
 void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
@@ -184,7 +189,7 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
     {
         QRect rect;
 
-        if (imageSR == ISR_Zoom)
+        if (imageSR == ISR_Clip)
             rect = {(size.width()  - image->size().width())  / 2,
                     (size.height() - image->size().height()) / 2,
                      image->size().width(), image->size().height()};

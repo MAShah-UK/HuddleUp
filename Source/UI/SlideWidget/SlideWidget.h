@@ -2,11 +2,6 @@
 
 #include <QWidget>
 
-// Change to this when SlideWidget is complete
-// and seperate copy is stored from project for
-// future use.
-// #include "Helpers/Math_General.h"
-
 #include "../../Helpers/Math_General.h"
 #include "../../Helpers/Qt_General.h"
 
@@ -14,6 +9,9 @@
  * This container allows inserting and sliding through widgets.
  * Widgets will automatically downscale to the SlideWidget's
  * dimensions. Optionally they can be upscaled.
+ *
+ * All that's required is that you provide a selection of widgets
+ * to scroll through.
  */
 
 class SWProperties

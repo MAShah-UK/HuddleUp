@@ -4,16 +4,9 @@
 #include <QPen>
 
 /*
- * To use this widget generator create an instance of CWProperties and set the
- * parent widget and the path to the image file. Then set that maxScreenPercentage
- * that you expect the image to take when the application is maximised. Set the other
- * required data. Create an instance of CaptionWidget and pass the CWProperties
- * instance via the constructor. Use the () operator to output a label.
- *
  * An image path and mainText must be provided.
  * setup() must be called to visually update any changes.
  * subText is optional as are the styling and spacing options.
- *
  */
 
 class CaptionWidget : public QLabel
@@ -44,14 +37,14 @@ public:
     {
         ST_Absolute, // Total size will be set size.
         ST_Image     // Image will be at set size.
-    } sizeType = ST_Absolute;
+    } sizeType = ST_Image;
     QSize targetSize = {-1, -1}; // The enum applies to the negative values here.
 
     enum EImageSizeResponse
     {
-        ISR_Zoom,
+        ISR_Clip,
         ISR_Scale
-    } imageSR = ISR_Zoom;
+    } imageSR = ISR_Scale;
 
     struct SpacingData
     {

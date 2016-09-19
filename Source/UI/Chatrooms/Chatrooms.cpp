@@ -8,6 +8,8 @@
 #include "../SlideWidget/SlideWidget.h"
 #include "../CaptionWidget/CaptionWidget.h"
 
+// TODO: Make it so that the chatroom widget only parses required information.
+//       The actual designing should be done by another class.
 Chatrooms::Chatrooms(QWidget* parent)
 {
     SWProperties SWProps;
@@ -25,24 +27,27 @@ Chatrooms::Chatrooms(QWidget* parent)
     for (const QFileInfo& fi : dir.entryInfoList(dirFilter, QDir::Time))
     {
         // TODO: Check if 12/24 hour format changes with current system.
+        // TODO: Replace LAN folder names by an ID number as multiple places
+        //       may use the same name.
         QString name = fi.fileName();
         QDateTime dt = fi.lastModified();
 
-        QImage cover(fi.fileName() + "/Cover.png"); // TODO: Make extension independant.
+        QImage cover(name + "/Cover.png"); // TODO: Make extension independant.
         if (cover.isNull())
             cover.load(":/Resources/Defaults/Cover.jpg");
 
-        QImage bg(fi.fileName() + "/bg.jpg");
+        QImage bg(name + "/bg.jpg");
         if (bg.isNull())
             bg.load(":/Resources/Defaults/Backgound.jpg");
 
         CaptionWidget* cw      = new CaptionWidget(_LANsSW);
         cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
-        cw->imagePath          = ":/Resources/Defaults/Covers.jpg"; // TODO: Fix.
+        cw->imagePath          = fi.absoluteFilePath() + "/Cover"; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
         cw->image.borderRadius = {0, 0};
         cw->text.borderRadius  = {0, 0};
         cw->mainText.text      = name;
         cw->subText.text       = "Here's your subtext.";
+        cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
         cw->setup();
 
         addToSW.append(cw);
