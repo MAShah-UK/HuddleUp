@@ -28,14 +28,12 @@ void CaptionWidget::calculateDimensions()
 
 void CaptionWidget::loadScaledImage()
 {
-    loadedImage = QImage(imagePath);
-    QSize imageSize;
-
     // Calculate required image size.
 
     bool posW = targetSize.width() > 0;
     bool posH = targetSize.height() > 0;
 
+    QSize imageSize;
     if (posW) imageSize.setWidth(targetSize.width());
 
     switch (sizeType)
@@ -47,6 +45,27 @@ void CaptionWidget::loadScaledImage()
     case ST_Image :
          if (posH) imageSize.setHeight(targetSize.height());
     break;
+    }
+
+    if (!loadedImage.load(imagePath))
+    {
+        loadedImage = QImage({200, 200}, QImage::Format_ARGB32);
+        loadedImage.fill(QColor(225, 225, 255));
+
+        QPainter painter(&loadedImage);
+
+        QFont font;
+        font.setBold(true);
+        font.setPixelSize(200);
+        painter.setFont(font);
+
+        painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
+        painter.drawText(QRect(QPoint(), QSize{200, 200}), "?", QTextOption(Qt::AlignCenter));
+
+        imageSR = ISR_Scale;
+
+        mainText.text = "Error";
+        subText.text  = "Image not found.";
     }
 
     // TODO: Fix logic here, non square images will scale wierdly.
