@@ -1,0 +1,5 @@
+GroupName: Tesco
+GroupMessage: Whatever you want, we have.
+Admin: jon1234
+Write: doe1295, abra2934, wees1924
+Read: wewe0913, zill9132

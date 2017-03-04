@@ -47,6 +47,7 @@ void CaptionWidget::loadScaledImage()
     break;
     }
 
+    // If the image doesn't load put the question mark in its place.
     if (!loadedImage.load(imagePath))
     {
         loadedImage = QImage({200, 200}, QImage::Format_ARGB32);
@@ -64,9 +65,6 @@ void CaptionWidget::loadScaledImage()
         painter.drawText(QRect(QPoint(), QSize{200, 200}), "?", QTextOption(Qt::AlignCenter));
 
         imageSR = ISR_Scale;
-
-        mainText.text = "Error";
-        subText.text  = "Image not found.";
     }
 
     // TODO: Fix logic here, non square images will scale wierdly.

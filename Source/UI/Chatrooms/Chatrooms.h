@@ -4,36 +4,37 @@
 
 #include <QString>
 #include <QList>
-#include <QMap>
 #include <QImage>
+#include <QMediaPlayer>
+#include <QDateTime>
 
 class QLabel;
 class SlideWidget;
 
 class Chatrooms
-{   
-    struct SessionData
-    {
-        bool isLoaded = false;
-
-        QString name;
-        QString lastModTime;
-        QString lastModDate;
-        QImage cover, bg;
-    };
-
-    // TODO: Consider deriving SessionData from LANData if many variables match up.
-    struct LANData
+{
+    struct Data
     {
         // LANs and sessions will only be loaded as needed.
         bool isLoaded;
 
         QString name;
-        QString lastModTime;
-        QString lastModDate;
-        QImage cover, bg;
+        QDateTime lastModified;
+        QImage  cover, bg;
         QLabel* caption;
+    };
 
+    struct SessionData : Data
+    {
+        QList<QString> user;
+        QList<QString> messages;
+        QList<QDateTime> received;
+        QList<QImage> images;
+        //QList<QMediaPlayer> clips;
+    };
+
+    struct LANData : Data
+    {
         QList<SessionData> sessions;
     };
     QList<LANData> LANs;

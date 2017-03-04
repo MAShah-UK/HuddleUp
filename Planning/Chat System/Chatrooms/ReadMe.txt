@@ -1,2 +1,1 @@
-This is an example for the the chatroom sub-directory layout could look like in
-actual usage.
+This is an example for the the chatroom sub-directory layout could look like in actual usage.

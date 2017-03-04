@@ -1,0 +1,5 @@
+GroupName: Argos
+GroupMessage: For all your shopping needs.
+Admin: jon1234
+Write: doe1295, abra2934, wees1924
+Read: wewe0913, zill9132

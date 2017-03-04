@@ -29,31 +29,31 @@ Chatrooms::Chatrooms(QWidget* parent)
         // TODO: Check if 12/24 hour format changes with current system.
         // TODO: Replace LAN folder names by an ID number as multiple places
         //       may use the same name.
-        QString name = fi.fileName();
-        QDateTime dt = fi.lastModified();
+        LANData curLAN;
+        curLAN.name = fi.fileName();
+        curLAN.lastModified = fi.lastModified();
 
-        QImage cover(name + "/Cover.png"); // TODO: Make extension independant.
-        if (cover.isNull())
-            cover.load(":/Resources/Defaults/Cover.jpg");
+        curLAN.cover = QImage(curLAN.name + "/Cover.png"); // TODO: Make extension independant.
+        if (curLAN.cover.isNull())
+            curLAN.cover.load(":/Resources/Defaults/Cover.jpg");
 
-        QImage bg(name + "/bg.jpg");
-        if (bg.isNull())
-            bg.load(":/Resources/Defaults/Backgound.jpg");
+        curLAN.bg = QImage(curLAN.name + "/bg.jpg");
+        if (curLAN.bg.isNull())
+            curLAN.bg.load(":/Resources/Defaults/Backgound.jpg");
 
         CaptionWidget* cw      = new CaptionWidget(_LANsSW);
-        cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
+        //cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
         cw->imagePath          = fi.absoluteFilePath() + "/Cover"; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
         cw->image.borderRadius = {0, 0};
         cw->text.borderRadius  = {0, 0};
-        cw->mainText.text      = name;
+        cw->mainText.text      = curLAN.name;
         cw->subText.text       = "Here's your subtext.";
         cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
         cw->setup();
 
         addToSW.append(cw);
 
-        LANs.append( {true, name, dt.toString("hh:mm"), dt.toString("ddd dd/mm/yy"),
-                      cover, bg, cw} );
+        LANs.append(curLAN);
     }
 
     _LANsSW->addWidget(addToSW);

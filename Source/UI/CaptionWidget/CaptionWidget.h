@@ -35,8 +35,8 @@ public:
 
     enum ESizeType
     {
-        ST_Absolute, // Total size will be set size.
-        ST_Image     // Image will be at set size.
+        ST_Absolute, // Total size will be set targetSize.
+        ST_Image     // Image will be at set targetSize.
     } sizeType = ST_Image;
     QSize targetSize = {-1, -1}; // The enum applies to the negative values here.
 
