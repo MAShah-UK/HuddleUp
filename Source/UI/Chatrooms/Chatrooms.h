@@ -41,7 +41,9 @@ class Chatrooms
 
     SlideWidget* _LANsSW;
 
+    void loadLANs();
+
 public:
-    Chatrooms(QWidget* parent = nullptr); // Will load all pre-existing data.
+    Chatrooms(); // Will load all pre-existing data.
     SlideWidget* LANsSW();
 };

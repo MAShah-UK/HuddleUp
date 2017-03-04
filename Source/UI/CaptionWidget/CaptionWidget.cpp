@@ -15,7 +15,7 @@ void CaptionWidget::calculateDimensions()
     dims.subTextBR = QFontMetrics(subText.font).tightBoundingRect(subText.text);
 
     // To make sure text is at an appropriate distance from the border.
-    dims.radius = text.borderRadius;
+    dims.radius = textDD.borderRadius;
 
     int textHeight = Math::max(dims.mainTextBR.height(), dims.subTextBR.height()) / 1.5;
 
@@ -48,12 +48,12 @@ void CaptionWidget::loadScaledImage()
     }
 
     // If the image doesn't load put the question mark in its place.
-    if (!loadedImage.load(imagePath))
+    if (!image.isNull())
     {
-        loadedImage = QImage({200, 200}, QImage::Format_ARGB32);
-        loadedImage.fill(image.bgColor);
+        image = QImage({200, 200}, QImage::Format_ARGB32);
+        image.fill(imageDD.bgColor);
 
-        QPainter painter(&loadedImage);
+        QPainter painter(&image);
         painter.setRenderHints(QPainter::Antialiasing | QPainter::TextAntialiasing);
         painter.setPen(mainText.color);
 
@@ -69,39 +69,39 @@ void CaptionWidget::loadScaledImage()
 
     // TODO: Fix logic here, non square images will scale wierdly.
     if      (posW && posH) // Fix x and y.
-             loadedImage = loadedImage.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+             image = image.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
     else if (!posW && !posH) // Auto x and y.
              ; // Do nothing.
 
     else if (posW) // Fix x, Auto y.
-             loadedImage = loadedImage.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+             image = image.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
 
     else // Auto w, fix y.
-             loadedImage = loadedImage.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
+             image = image.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
 }
 
 void CaptionWidget::editImage(const QSize& size)
 {
-    calculateBorderRadius(image, size);
+    calculateBorderRadius(imageDD, size);
 
     // Draw image portion of widget.
 
     imageIM = QImage(size, QImage::Format_ARGB32);
     imageIM.fill(QColor(0, 0, 0, 0));
 
-    drawBorder(imageIM, image, size, &loadedImage);
+    drawBorder(imageIM, imageDD, size, &image);
 }
 
 void CaptionWidget::editText()
 {
     const QSize& PMSize = imageIM.size();
-    calculateBorderRadius(text, PMSize);
+    calculateBorderRadius(textDD, PMSize);
     QSize size(PMSize.width(), dims.textBoxHeight);
 
     // Draw text portion of widget.
 
-    drawBorder(textIM, text, size);
+    drawBorder(textIM, textDD, size);
 
     // Draw text.
 
@@ -234,7 +234,7 @@ void CaptionWidget::setup()
 {
     calculateDimensions();
     loadScaledImage();
-    editImage(loadedImage.size());
+    editImage(image.size());
     editText();
     updateLabels();
 }

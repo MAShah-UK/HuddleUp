@@ -22,7 +22,6 @@ private:
         int textBoxHeight;
     } dims;
 
-    QImage loadedImage;
     QImage imageIM;
     QImage textIM;
 
@@ -31,7 +30,7 @@ private:
 
 public:
 
-    QString imagePath;
+    QImage image;
 
     enum ESizeType
     {
@@ -60,7 +59,7 @@ public:
     private:
         friend class CaptionWidget;
         QSize _borderRadius; // The calculated result.
-    } image, text; // These refer to the image and text areas of the widget.
+    } imageDD, textDD; // These refer to the image and text areas of the widget.
 
     struct TextData
     {
@@ -81,11 +80,11 @@ public:
 
     void calculateBorderRadius(DesignData& target, const QSize& source);
     void drawText(const TextData& textData, const QPoint& position);
-    QLabel* setLabel(QLabel* label, const QImage* const image, const QSize& size);
+    QLabel* setLabel(QLabel* label, const QImage* const imageDD, const QSize& size);
     void updateLabels();
 
     void drawBorder(QImage& target, const DesignData& design,
-                    const QSize& targetSize, const QImage* const image = nullptr);
+                    const QSize& targetSize, const QImage* const imageDD = nullptr);
 
     // Events
 

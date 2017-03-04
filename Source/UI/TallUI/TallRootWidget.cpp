@@ -57,7 +57,7 @@ void TallRootWidget::setupChatsMenu()
 
     // Load chat data from files.
 
-    Chatrooms* chatrooms = new Chatrooms(); // TODO: Memory leak.
+    Chatrooms* chatrooms = new Chatrooms; // TODO: Memory leak.
     Qt_Gen::setBackgroundColor(chatrooms->LANsSW(), QColor(70, 70, 70));
     layout->addWidget(chatrooms->LANsSW());
 }

@@ -10,13 +10,13 @@
 
 // TODO: Make it so that the chatroom widget only parses required information.
 //       The actual designing should be done by another class.
-Chatrooms::Chatrooms(QWidget* parent)
+void Chatrooms::loadLANs()
 {
     SWProperties SWProps;
     SWProps.isHorizontal = false;
     SWProps.spacing      = Qt_Gen::sizePerc(0.5).width();
     SWProps.styleVariant = SWProperties::SV_Queue;
-    _LANsSW              = new SlideWidget(parent, SWProps);
+    _LANsSW              = new SlideWidget(nullptr, SWProps);
 
     QDir dir("Chatrooms");
     QFlags<QDir::Filter> dirFilter = QDir::NoDotAndDotDot | QDir::AllDirs;
@@ -43,11 +43,11 @@ Chatrooms::Chatrooms(QWidget* parent)
 
         CaptionWidget* cw      = new CaptionWidget(_LANsSW);
         //cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
-        cw->imagePath          = fi.absoluteFilePath() + "/Cover"; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
-        cw->image.borderRadius = {0, 0};
-        cw->text.borderRadius  = {0, 0};
-        cw->mainText.text      = curLAN.name;
-        cw->subText.text       = "Here's your subtext.";
+        cw->image                = curLAN.cover; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
+        cw->imageDD.borderRadius = {0, 0};
+        cw->textDD.borderRadius  = {0, 0};
+        cw->mainText.text = curLAN.name;
+        cw->subText.text  = "Here's your subtext.";
         cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
         cw->setup();
 
@@ -57,6 +57,11 @@ Chatrooms::Chatrooms(QWidget* parent)
     }
 
     _LANsSW->addWidget(addToSW);
+}
+
+Chatrooms::Chatrooms()
+{
+    loadLANs();
 
     /*
     const QString root = dir.absolutePath();
