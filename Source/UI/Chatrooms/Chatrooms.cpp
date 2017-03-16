@@ -5,23 +5,13 @@
 #include <QDateTime>
 #include <QStringList>
 
-#include "../SlideWidget/SlideWidget.h"
 #include "../CaptionWidget/CaptionWidget.h"
 
 // TODO: Make it so that the chatroom widget only parses required information.
 //       The actual designing should be done by another class.
-void Chatrooms::loadLANs()
+void Chatrooms::loadLANs(const QDir& dir)
 {
-    SWProperties SWProps;
-    SWProps.isHorizontal = false;
-    SWProps.spacing      = Qt_Gen::sizePerc(0.5).width();
-    SWProps.styleVariant = SWProperties::SV_Queue;
-    _LANsSW              = new SlideWidget(nullptr, SWProps);
-
-    QDir dir("Chatrooms");
     QFlags<QDir::Filter> dirFilter = QDir::NoDotAndDotDot | QDir::AllDirs;
-
-    QList<QWidget*> addToSW;
 
     // We want the most recently updated LAN on top.
     for (const QFileInfo& fi : dir.entryInfoList(dirFilter, QDir::Time))
@@ -34,34 +24,20 @@ void Chatrooms::loadLANs()
         curLAN.lastModified = fi.lastModified();
 
         curLAN.cover = QImage(curLAN.name + "/Cover.png"); // TODO: Make extension independant.
-        if (curLAN.cover.isNull())
+        if (curLAN.cover.isNull()) // TODO: Loading here isn't ideal as I'm making extra copies for no reason.
             curLAN.cover.load(":/Resources/Defaults/Cover.jpg");
 
         curLAN.bg = QImage(curLAN.name + "/bg.jpg");
-        if (curLAN.bg.isNull())
+        if (curLAN.bg.isNull()) // TODO: Same issue.
             curLAN.bg.load(":/Resources/Defaults/Backgound.jpg");
-
-        CaptionWidget* cw      = new CaptionWidget(_LANsSW);
-        //cw->targetSize         = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
-        cw->image                = curLAN.cover; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
-        cw->imageDD.borderRadius = {0, 0};
-        cw->textDD.borderRadius  = {0, 0};
-        cw->mainText.text = curLAN.name;
-        cw->subText.text  = "Here's your subtext.";
-        cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
-        cw->setup();
-
-        addToSW.append(cw);
 
         LANs.append(curLAN);
     }
-
-    _LANsSW->addWidget(addToSW);
 }
 
-Chatrooms::Chatrooms()
+Chatrooms::Chatrooms(const QString& dir)
 {
-    loadLANs();
+    loadLANs(dir);
 
     /*
     const QString root = dir.absolutePath();
@@ -79,9 +55,4 @@ Chatrooms::Chatrooms()
             sessions[&LAN].append( {name, dt.toString("hh:mm"), dt.toString("ddd dd/mm/yy")} );
         }
     } */
-}
-
-SlideWidget *Chatrooms::LANsSW()
-{
-    return _LANsSW;
 }

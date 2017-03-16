@@ -57,9 +57,34 @@ void TallRootWidget::setupChatsMenu()
 
     // Load chat data from files.
 
-    Chatrooms* chatrooms = new Chatrooms; // TODO: Memory leak.
-    Qt_Gen::setBackgroundColor(chatrooms->LANsSW(), QColor(70, 70, 70));
-    layout->addWidget(chatrooms->LANsSW());
+    Chatrooms cr("Chatrooms");
+
+    SWProperties SWProps;
+    SWProps.isHorizontal = false;
+    SWProps.spacing      = Qt_Gen::sizePerc(0.5).width();
+    SWProps.styleVariant = SWProperties::SV_Queue;
+
+    SlideWidget* LANsSW  = new SlideWidget(this, SWProps);
+    Qt_Gen::setBackgroundColor(LANsSW, QColor(70, 70, 70));
+    layout->addWidget(LANsSW);
+
+    QList<QWidget*> addToSW;
+    for (const Chatrooms::LANData& LAN : cr.LANs)
+    {
+        CaptionWidget* cw = new CaptionWidget;
+        //cw->targetSize  = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
+        cw->image = LAN.cover; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
+        cw->imageDD.borderRadius = {0, 0};
+        cw->textDD.borderRadius  = {0, 0};
+        cw->mainText.text = LAN.name;
+        cw->subText.text  = "Here's your subtext.";
+        cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
+        cw->setup();
+
+        addToSW.append(cw);
+    }
+
+    LANsSW->addWidget(addToSW);
 }
 
 void TallRootWidget::setupMediaMenu()

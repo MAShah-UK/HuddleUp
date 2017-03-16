@@ -10,9 +10,15 @@
 
 class QLabel;
 class SlideWidget;
+class QDir;
 
 class Chatrooms
 {
+    // Load locally stored LAN data.
+    void loadLANs(const QDir& dir);
+
+public:
+
     struct Data
     {
         // LANs and sessions will only be loaded as needed.
@@ -39,11 +45,5 @@ class Chatrooms
     };
     QList<LANData> LANs;
 
-    SlideWidget* _LANsSW;
-
-    void loadLANs();
-
-public:
-    Chatrooms(); // Will load all pre-existing data.
-    SlideWidget* LANsSW();
+    Chatrooms(const QString& dir);
 };
