@@ -48,7 +48,7 @@ void CaptionWidget::loadScaledImage()
     }
 
     // If the image doesn't load put the question mark in its place.
-    if (!image.isNull())
+    if (image.isNull())
     {
         image = QImage({200, 200}, QImage::Format_ARGB32);
         image.fill(imageDD.bgColor);

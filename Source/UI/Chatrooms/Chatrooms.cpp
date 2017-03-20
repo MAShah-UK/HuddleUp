@@ -14,22 +14,34 @@ void Chatrooms::loadLANs(const QDir& dir)
     QFlags<QDir::Filter> dirFilter = QDir::NoDotAndDotDot | QDir::AllDirs;
 
     // We want the most recently updated LAN on top.
+    // TODO: Fix so that only the time of the messages is looked at.
+    //       Currently any change will mess up the order.
     for (const QFileInfo& fi : dir.entryInfoList(dirFilter, QDir::Time))
     {
+        QString path(fi.absoluteFilePath());
         // TODO: Check if 12/24 hour format changes with current system.
         // TODO: Replace LAN folder names by an ID number as multiple places
         //       may use the same name.
         LANData curLAN;
-        curLAN.name = fi.fileName();
-        curLAN.lastModified = fi.lastModified();
 
-        curLAN.cover = QImage(curLAN.name + "/Cover.png"); // TODO: Make extension independant.
-        if (curLAN.cover.isNull()) // TODO: Loading here isn't ideal as I'm making extra copies for no reason.
-            curLAN.cover.load(":/Resources/Defaults/Cover.jpg");
+        // Set from Properties.txt.
+        QFile LANPropertiesFile(path + "/Properties.txt");
+        QTextStream PropertiesStream(&LANPropertiesFile);
+        QList<QString> Properties;
 
+        while(!PropertiesStream.atEnd())
+            Properties.append(PropertiesStream.readLine());
+
+        // TODO: Fix this out of bounds error.
+        curLAN.name    = Properties[0];
+        curLAN.message = Properties[1];
+        curLAN.admin   = Properties[2];
+        curLAN.writeAccess = Properties[3];
+        curLAN.readAccess  = Properties[4];
+
+        curLAN.lastModified = fi.lastModified(); // Change to one of the session's LM.
+        curLAN.cover = QImage(path + "/Cover");
         curLAN.bg = QImage(curLAN.name + "/bg.jpg");
-        if (curLAN.bg.isNull()) // TODO: Same issue.
-            curLAN.bg.load(":/Resources/Defaults/Backgound.jpg");
 
         LANs.append(curLAN);
     }

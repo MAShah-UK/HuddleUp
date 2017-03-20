@@ -73,7 +73,7 @@ void TallRootWidget::setupChatsMenu()
     {
         CaptionWidget* cw = new CaptionWidget;
         //cw->targetSize  = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
-        cw->image = LAN.cover; // ":/Resources/Defaults/Cover.jpg"; // TODO: Fix.
+        cw->image = LAN.cover;
         cw->imageDD.borderRadius = {0, 0};
         cw->textDD.borderRadius  = {0, 0};
         cw->mainText.text = LAN.name;

@@ -24,7 +24,7 @@ public:
         // LANs and sessions will only be loaded as needed.
         bool isLoaded;
 
-        QString name;
+        QString name, message, admin, writeAccess, readAccess;
         QDateTime lastModified;
         QImage  cover, bg;
         QLabel* caption;
@@ -32,8 +32,7 @@ public:
 
     struct SessionData : Data
     {
-        QList<QString> user;
-        QList<QString> messages;
+        QList<QString> user, messages;
         QList<QDateTime> received;
         QList<QImage> images;
         //QList<QMediaPlayer> clips;
