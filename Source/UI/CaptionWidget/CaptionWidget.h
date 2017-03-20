@@ -34,9 +34,9 @@ public:
 
     enum ESizeType
     {
-        ST_Absolute, // Total size will be set targetSize.
-        ST_Image     // Image will be at set targetSize.
-    } sizeType = ST_Image;
+        ST_Widget, // targetSize height will be total widget height.
+        ST_Image     // targetSize height will be image height.
+    } sizeType = ST_Widget;
     QSize targetSize = {-1, -1}; // The enum applies to the negative values here.
 
     enum EImageSizeResponse
@@ -53,12 +53,13 @@ public:
 
     struct DesignData
     {
+        // Set curvature of border corners.
         QSize borderRadius = {-1, -1}; // <0 is automatic, radius scales with image.
         QPen borderPen     = {QBrush(QColor(0, 0, 0)), 7};
-        QColor bgColor     = {220, 220, 220};
+        QColor bgColor     = {255, 255, 255};
     private:
         friend class CaptionWidget;
-        QSize _borderRadius; // The calculated result.
+        QSize _borderRadius; // The automatic calculated result.
     } imageDD, textDD; // These refer to the image and text areas of the widget.
 
     struct TextData

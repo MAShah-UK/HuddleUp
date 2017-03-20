@@ -26,22 +26,26 @@ void Chatrooms::loadLANs(const QDir& dir)
 
         // Set from Properties.txt.
         QFile LANPropertiesFile(path + "/Properties.txt");
+        LANPropertiesFile.open(QIODevice::ReadOnly);
+
         QTextStream PropertiesStream(&LANPropertiesFile);
         QList<QString> Properties;
 
         while(!PropertiesStream.atEnd())
             Properties.append(PropertiesStream.readLine());
 
-        // TODO: Fix this out of bounds error.
         curLAN.name    = Properties[0];
         curLAN.message = Properties[1];
         curLAN.admin   = Properties[2];
+        // TODO: Fix accesses at later stage.
         curLAN.writeAccess = Properties[3];
         curLAN.readAccess  = Properties[4];
 
-        curLAN.lastModified = fi.lastModified(); // Change to one of the session's LM.
+        // Set from other files.
+        // TODO: Change to one of the session's LM.
+        curLAN.lastModified = fi.lastModified();
         curLAN.cover = QImage(path + "/Cover");
-        curLAN.bg = QImage(curLAN.name + "/bg.jpg");
+        curLAN.bg    = QImage(curLAN.name + "/bg");
 
         LANs.append(curLAN);
     }

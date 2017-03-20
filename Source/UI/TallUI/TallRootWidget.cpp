@@ -77,8 +77,8 @@ void TallRootWidget::setupChatsMenu()
         cw->imageDD.borderRadius = {0, 0};
         cw->textDD.borderRadius  = {0, 0};
         cw->mainText.text = LAN.name;
-        cw->subText.text  = "Here's your subtext.";
-        cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
+        cw->subText.text  = LAN.message;
+        //cw->setMinimumSize(200, 200); // TODO: There is an issue with this.
         cw->setup();
 
         addToSW.append(cw);
