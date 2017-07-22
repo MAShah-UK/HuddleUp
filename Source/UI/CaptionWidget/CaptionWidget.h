@@ -72,7 +72,7 @@ public:
     // Main functions.
 
     void calculateDimensions();
-    void loadScaledImage();
+    void scaleImage();
     void editImage(const QSize& size);
     void editText();
     void sortLabels();

@@ -72,7 +72,7 @@ void TallRootWidget::setupChatsMenu()
     for (const Chatrooms::LANData& LAN : cr.LANs)
     {
         CaptionWidget* cw = new CaptionWidget;
-        //cw->targetSize  = Qt_Gen::sizePerc(Qt_Gen::random(10, 20));
+        cw->targetSize  = {1000, 500};
         cw->image = LAN.cover;
         cw->imageDD.borderRadius = {0, 0};
         cw->textDD.borderRadius  = {0, 0};

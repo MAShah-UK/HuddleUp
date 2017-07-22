@@ -26,27 +26,28 @@ void CaptionWidget::calculateDimensions()
                          spacing.mainAndSubText + dims.subTextBR.height();
 }
 
-void CaptionWidget::loadScaledImage()
+void CaptionWidget::scaleImage()
 {
     // Calculate required image size.
 
     bool posW = targetSize.width() > 0;
     bool posH = targetSize.height() > 0;
 
-    QSize imageSize;
-    if (posW) imageSize.setWidth(targetSize.width());
+    QSize finalSize;
+    if (posW) finalSize.setWidth(targetSize.width());
 
     switch (sizeType)
     {
-    case ST_Absolute :
-        if (posH) imageSize.setHeight(targetSize.height() - dims.textBoxHeight - spacing.imageText);
+    case ST_Widget :
+        if (posH) finalSize.setHeight(targetSize.height() - dims.textBoxHeight - spacing.imageText);
     break;
 
     case ST_Image :
-         if (posH) imageSize.setHeight(targetSize.height());
+         if (posH) finalSize.setHeight(targetSize.height());
     break;
     }
 
+    // TODO: Move this somewhere else. Shouldn't really be in CaptionWidget.
     // If the image doesn't load put the question mark in its place.
     if (image.isNull())
     {
@@ -67,25 +68,22 @@ void CaptionWidget::loadScaledImage()
         imageSR = ISR_Scale;
     }
 
-    // TODO: Fix logic here, non square images will scale wierdly.
-    if      (posW && posH) // Fix x and y.
-             image = image.scaled(imageSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    if      (posW && posH)   // Set x and y to target size.
+            image = image.scaled(finalSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 
-    else if (!posW && !posH) // Auto x and y.
-             ; // Do nothing.
+    else if (!posW && !posH) // Set x and y to image size.
+            ; // Do nothing.
 
-    else if (posW) // Fix x, Auto y.
-             image = image.scaledToWidth(imageSize.width(), Qt::SmoothTransformation);
+    else if (posW)           // x to target size, y to image size.
+            image = image.scaledToWidth({finalSize.width()}, Qt::SmoothTransformation);
 
-    else // Auto w, fix y.
-             image = image.scaledToHeight(imageSize.height(), Qt::SmoothTransformation);
+    else                     // x to image size, y to target size.
+            image = image.scaledToHeight(finalSize.height(), Qt::SmoothTransformation);
 }
 
 void CaptionWidget::editImage(const QSize& size)
 {
     calculateBorderRadius(imageDD, size);
-
-    // Draw image portion of widget.
 
     imageIM = QImage(size, QImage::Format_ARGB32);
     imageIM.fill(QColor(0, 0, 0, 0));
@@ -98,8 +96,6 @@ void CaptionWidget::editText()
     const QSize& PMSize = imageIM.size();
     calculateBorderRadius(textDD, PMSize);
     QSize size(PMSize.width(), dims.textBoxHeight);
-
-    // Draw text portion of widget.
 
     drawBorder(textIM, textDD, size);
 
@@ -203,9 +199,14 @@ void CaptionWidget::drawBorder(QImage& target, const DesignData& design,
                             design._borderRadius.width(), design._borderRadius.height());
 }
 
+// TODO: Something here is preventing correct resizing.
 void CaptionWidget::resizeEvent(QResizeEvent* re)
 {
-    const QSize& newS   = re->size();
+    const QSize& oldS = re->size();
+    const QSize& newS = oldS; //{oldS.width() < };
+
+    //if (oldS.width() < )
+
     const QSize& imageS = {newS.width(), newS.height() - dims.textBoxHeight - spacing.imageText};
     const QSize& textS  = {newS.width(), dims.textBoxHeight};
 
@@ -233,7 +234,7 @@ CaptionWidget::CaptionWidget(QWidget* parent)
 void CaptionWidget::setup()
 {
     calculateDimensions();
-    loadScaledImage();
+    scaleImage();
     editImage(image.size());
     editText();
     updateLabels();
