@@ -14,4 +14,4 @@ The following is a list of pros and cons compared to traditional messaging platf
   * Cannot handle a large number of concurrent users.
   
 ## Discontinuation
-While I believe in the project and can see it becoming successful upon completion, I cannnot currently invest the required time on it. I will try again in the future when the conditions are ideal.
+While I believe in the project and can see it becoming successful, I cannot invest the time required to bring it to completion. I will attempt to do so in the future when conditions are ideal.
